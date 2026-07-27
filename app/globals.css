@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/*
+ * Minimal Phase 1 shell. The full design-token system (oklch light/dark tokens,
+ * shadcn/ui, theming, code highlighting) lands in Phase 2.
+ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-white text-neutral-900 antialiased;
+  }
+}
