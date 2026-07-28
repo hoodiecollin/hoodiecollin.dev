@@ -14,10 +14,23 @@
  * The PUBLIC surface (this repo's deployed site + `public/…​.pdf`) is the generalist
  * `staff-principal` slant with the phone number omitted — that's the `resume` export
  * below, which the /resume page and scripts/build-resume-pdf.ts consume. The private
- * application PDFs (scripts/build-resume-variants.ts, gitignored output) render every
- * slant WITH the phone number and are never deployed.
+ * application records (scripts/build-resume-variants.ts) render every slant WITH the
+ * phone number into ~/Documents/resume/ (Markdown + PDF + an index.json manifest) and
+ * are never deployed; that manifest is the contract the job-search pipeline reads.
  */
 import { site } from "@/lib/site";
+import {
+  resumeSlant,
+  variantOrder,
+  type ResumeSlant,
+  type ResumeVariantKey,
+} from "@/lib/resume-slants";
+
+// The slant taxonomy (keys, labels, tracker labels, when-to-send) lives in the
+// dependency-free lib/resume-slants.ts. Re-export it so `@/lib/resume` stays the
+// one-stop résumé import.
+export { variantOrder } from "@/lib/resume-slants";
+export type { ResumeSlant, ResumeVariantKey } from "@/lib/resume-slants";
 
 export interface ResumeExperience {
   company: string;
@@ -53,17 +66,11 @@ export interface ResumeEducation {
   year: string;
 }
 
-export type ResumeVariantKey = "staff-principal" | "agentic-ai" | "founding-engineer";
-
-/** A slant: the intentionally-divergent layer sent for a particular kind of role. */
-export interface ResumeVariant {
-  key: ResumeVariantKey;
-  /** Short human label (also used for the private PDF filename). */
-  label: string;
-  /** When to send this slant. */
-  sendFor: string;
-  /** Job-search tracker label. */
-  trackerLabel: string;
+/**
+ * A slant: the canonical identity (from lib/resume-slants.ts) plus its content —
+ * the intentionally-divergent layer sent for a particular kind of role.
+ */
+export interface ResumeVariant extends ResumeSlant {
   title: string;
   summary: string;
   skills: ResumeSkillGroup[];
@@ -73,6 +80,9 @@ export interface ResumeVariant {
    */
   experienceBullets?: Record<string, string[]>;
 }
+
+/** The content half of each variant; identity is merged in from resume-slants.ts. */
+type VariantContent = Omit<ResumeVariant, keyof ResumeSlant>;
 
 /** A fully-resolved résumé (base merged with one variant) — the shape pages/PDFs read. */
 export interface Resume {
@@ -213,12 +223,8 @@ const base = {
 // skills, and the bullets that actually change per slant.
 // ────────────────────────────────────────────────────────────────────────────
 
-export const variants: Record<ResumeVariantKey, ResumeVariant> = {
+const variantContent: Record<ResumeVariantKey, VariantContent> = {
   "staff-principal": {
-    key: "staff-principal",
-    label: "Staff / Principal",
-    sendFor: "generalist senior-IC roles",
-    trackerLabel: "slant:staff-principal",
     title: "Staff / Principal Software Engineer",
     summary:
       "Staff-level engineer and product-minded builder with 11+ years shipping web applications and AI products end-to-end. I conceived, pitched, and single-handedly built Velo™ — Recentive's flagship AI predictive-analytics platform — grew it into the company's #1 revenue source, and scaled it into a platform multiple teams contribute to. Deep in TypeScript/Next.js and agentic AI; at my best owning ambiguous, high-impact problems from zero to production, and lifting teams through documentation, technical leadership, and mentorship.",
@@ -243,10 +249,6 @@ export const variants: Record<ResumeVariantKey, ResumeVariant> = {
   },
 
   "agentic-ai": {
-    key: "agentic-ai",
-    label: "Agentic AI",
-    sendFor: "AI / LLM / agent product-engineering roles",
-    trackerLabel: "slant:agentic",
     title: "Staff AI Engineer · Agentic Application Development",
     summary:
       "Software engineer with 11+ years building web applications and deep hands-on experience shipping production LLM and agent-powered products. I conceived and single-handedly built Velo™ — Recentive's flagship AI application — including its agentic query-generation layer, multimodal ingestion engine, and fact-grounding system, and grew it into the company's #1 revenue source. I turn frontier models into reliable, source-grounded product features, and design the platforms and docs that let other teams build on top.",
@@ -287,10 +289,6 @@ export const variants: Record<ResumeVariantKey, ResumeVariant> = {
   },
 
   "founding-engineer": {
-    key: "founding-engineer",
-    label: "Founding Engineer",
-    sendFor: "founding / zero-to-one / early-stage roles",
-    trackerLabel: "slant:founding",
     title: "Founding Engineer · Staff Software Engineer",
     summary:
       "Founding-style engineer and product-minded builder with 11+ years taking products from napkin sketch to production. At Recentive, I pitched the idea for Velo™, built the proof-of-concept and v1, and grew it into the company's #1 revenue source — more than all other streams combined — serving 12+ enterprise clients. I thrive in ambiguity, own problems end-to-end across the full stack and AI, and build the architecture, docs, and momentum that let a team scale behind me.",
@@ -334,12 +332,10 @@ export const variants: Record<ResumeVariantKey, ResumeVariant> = {
   },
 };
 
-/** Every slant, in send-priority order (generalist first). */
-export const variantOrder: ResumeVariantKey[] = [
-  "staff-principal",
-  "agentic-ai",
-  "founding-engineer",
-];
+/** Full slants — canonical identity (resume-slants.ts) merged with the content above. */
+export const variants: Record<ResumeVariantKey, ResumeVariant> = Object.fromEntries(
+  variantOrder.map((k) => [k, { ...resumeSlant[k], ...variantContent[k] }]),
+) as Record<ResumeVariantKey, ResumeVariant>;
 
 /** Merge the shared base with one slant into a full résumé. Phone is included only
  * when `includePhone` is set (private application PDFs) — never on public surfaces. */

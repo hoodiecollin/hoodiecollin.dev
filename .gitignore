@@ -11,9 +11,6 @@ out/
 public/search-index.json
 public/collin-kokotas-resume.pdf
 
-# private per-application résumé PDFs (with phone) — bun run resume:variants; never deployed
-resume-pdfs/
-
 # misc
 .DS_Store
 *.pem
