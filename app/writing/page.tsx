@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/mdx";
-import { formatDate } from "@/lib/utils";
+import { cn, container, formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Writing",
@@ -12,7 +12,7 @@ export default function WritingIndexPage() {
   const posts = getAllPosts();
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <main className={cn(container, "py-16")}>
       <header className="max-w-2xl">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Writing</h1>
         <p className="mt-3 text-muted-foreground">Posts, notes, and deep dives.</p>

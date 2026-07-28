@@ -169,6 +169,52 @@
   }
 }
 
+/*
+ * Print — the /resume page doubles as a printable document. Force a clean
+ * light sheet regardless of the on-screen theme, drop the site chrome (handled
+ * by `print:hidden` on the header/footer/toolbar), and tighten margins so it
+ * lands on one or two Letter pages. The downloadable PDF is generated separately
+ * by scripts/build-resume-pdf.ts; this keeps Cmd+P honest too.
+ */
+@media print {
+  @page {
+    size: Letter;
+    margin: 0.6in 0.65in;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .resume-sheet {
+    color: #1a1a1a !important;
+    font-size: 11pt;
+  }
+  .resume-sheet :is(h1, h2, h3, dt, strong, .font-semibold, .text-foreground),
+  .resume-sheet .text-foreground\/90 {
+    color: #111 !important;
+  }
+  .resume-sheet :is(.text-muted-foreground, dd, li, p) {
+    color: #333 !important;
+  }
+  .resume-sheet .text-primary {
+    color: #111 !important;
+    border-bottom: 1px solid #bbb;
+    padding-bottom: 3px;
+  }
+  .resume-sheet * {
+    border-color: #ccc !important;
+  }
+  .resume-sheet a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+}
+
 /* House polish: dim-accent selection + a thin scrollbar tuned for dark surfaces. */
 @layer base {
   ::selection {

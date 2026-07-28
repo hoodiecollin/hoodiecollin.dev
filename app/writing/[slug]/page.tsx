@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypePrettyCode from "rehype-pretty-code";
 import { getAllPostSlugs, getPostBySlug } from "@/lib/mdx";
-import { formatDate } from "@/lib/utils";
+import { cn, container, formatDate } from "@/lib/utils";
 import { rehypePrettyCodeOptions } from "@/lib/rehype-code";
 import { mdxComponents } from "@/components/mdx/mdx-components";
 
@@ -41,15 +41,17 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
   if (!post) notFound();
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-      <Link
-        href="/writing/"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="size-3.5" /> Writing
-      </Link>
+    <main className={cn(container, "py-12 sm:py-16")}>
+      {/* Prose stays at a reading measure, left-aligned within the wider shell. */}
+      <div className="max-w-3xl">
+        <Link
+          href="/writing/"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-3.5" /> Writing
+        </Link>
 
-      <article className="mt-6">
+        <article className="mt-6">
         <header className="mb-8">
           <h1 className="scroll-m-20 text-3xl font-bold tracking-tight sm:text-4xl">
             {post.frontmatter.title}
@@ -76,7 +78,8 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
             }}
           />
         </div>
-      </article>
+        </article>
+      </div>
     </main>
   );
 }

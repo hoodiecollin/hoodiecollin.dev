@@ -7,8 +7,9 @@ node_modules
 .next/
 out/
 
-# generated search index (rebuilt by prebuild)
+# generated build artifacts (rebuilt by prebuild)
 public/search-index.json
+public/collin-kokotas-resume.pdf
 
 # misc
 .DS_Store
