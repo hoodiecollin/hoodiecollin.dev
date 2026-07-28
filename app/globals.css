@@ -213,6 +213,20 @@
     color: inherit !important;
     text-decoration: none !important;
   }
+  /* Page-break hygiene: never strand a heading at a page bottom, keep each
+     bullet whole, and avoid single dangling lines. Long job entries are allowed
+     to break across pages (no break-inside-avoid on them) so content fills the
+     page instead of jumping — leaving a gap — when the next block won't fit. */
+  .resume-sheet {
+    orphans: 2;
+    widows: 2;
+  }
+  .resume-sheet :is(h1, h2, h3) {
+    break-after: avoid;
+  }
+  .resume-sheet :is(li, p) {
+    break-inside: avoid;
+  }
 }
 
 /* House polish: dim-accent selection + a thin scrollbar tuned for dark surfaces. */
