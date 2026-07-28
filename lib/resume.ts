@@ -23,6 +23,12 @@ export interface ResumeProject {
   description: string;
   /** Optional repo/link. */
   href?: string;
+  /** Dedicated project website, if it has one (e.g. forgedb.dev). */
+  website?: string;
+  /** Path (under /public) to a brand mark shown on the home-page card. */
+  logo?: string;
+  /** Highlight this project with a prominent card on the home page. */
+  featured?: boolean;
 }
 
 export interface ResumeSkillGroup {
@@ -123,11 +129,30 @@ export const resume = {
 
   projects: [
     {
+      name: "ForgeDB",
+      year: "2026",
+      description:
+        "An application-database generator: write one declarative .forge schema and, at compile time, get a tailored Rust database, a typed TypeScript SDK, and a REST API with an OpenAPI 3.1 spec. It's a code generator, not an ORM or query engine — the output is specialized per schema over columnar storage, so there's no generic runtime to pay for.",
+      href: "https://github.com/hoodiecollin/forgedb",
+      website: "https://forgedb.dev",
+      logo: "/projects/forgedb.svg",
+      featured: true,
+    },
+    {
       name: "typescript-to-rust (ttr)",
       year: "2026",
       description:
         "Language-level translator that compiles a strict TypeScript dialect into idiomatic Rust with true ownership semantics (borrows vs. owned values, &self / &mut self methods), with output verified by a real cargo toolchain rather than string matching.",
       href: "https://github.com/HoodieCollin/typescript-to-rust",
+      logo: "/projects/typescript-to-rust.svg",
+    },
+    {
+      name: "Optigon",
+      year: "2026",
+      description:
+        "Packages several interchangeable implementations of an operation (sorting, dictionary lookup, more to come) behind one interface, then learns per workload which is fastest via regret-scored adaptive dispatch. One Rust core, shipped as native addons to TypeScript (Node + Bun) and Python.",
+      href: "https://github.com/hoodiecollin/optigon",
+      logo: "/projects/optigon.svg",
     },
     {
       name: "checked-rs",
