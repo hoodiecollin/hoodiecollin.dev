@@ -25,6 +25,30 @@ The production `build` runs `output: "export"`, producing a fully static `out/`
 that can be hosted anywhere (Cloudflare Pages, GitHub Pages, Vercel, an object
 store). `bun dev` runs as a normal Node server so route handlers work locally.
 
+## Deploy
+
+Deployed to Vercel as a static export. `vercel.json` carries the platform-level
+config (applied at the edge, since `output: "export"` ignores `next.config`
+`headers()`):
+
+- **Security headers** on every route (`X-Content-Type-Options`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy`, HSTS).
+- **Immutable caching** (`max-age=31536000, immutable`) for hashed `/_next/static`
+  assets.
+- A same-origin **`/relay` reverse-proxy** to PostHog US, so analytics ingestion
+  isn't blocked by `*.posthog.com` ad-block filter lists.
+
+## Analytics
+
+Two lightweight, privacy-conscious layers, both **inert in local dev**:
+
+- **Vercel Web Analytics** — `<Analytics />` in `app/layout.tsx`; zero-config on
+  Vercel.
+- **PostHog** — initialised in `app/providers.tsx` only when
+  `NEXT_PUBLIC_POSTHOG_KEY` is set (see `.env.example`). Set it in the Vercel
+  project env for production/preview; pageviews are captured manually for
+  app-router SPA navigations.
+
 ## Content
 
 - **Posts** are flat MDX files under `content/writing/*.mdx`. Frontmatter:
