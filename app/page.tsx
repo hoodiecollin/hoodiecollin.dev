@@ -59,30 +59,35 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* About — editorial two-column: section label in a left rail, text at a
-          readable measure in the right column, so the band fills the full width. */}
+      {/* About */}
       <section className="mt-16">
-        <div className="grid gap-x-10 gap-y-4 md:grid-cols-[1fr_2fr]">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-            About
-          </h2>
-          <div className="space-y-4">
-            <p className="leading-relaxed text-foreground/90">
-              I'm a staff-level engineer with 11+ years building web applications and AI
-              products end-to-end. I've taken flagship platforms from a rough proof-of-concept
-              to the top of a company's revenue, then architected them into systems whole teams
-              build on.
-            </p>
-            <p className="leading-relaxed text-muted-foreground">
-              I'm at my best owning ambiguous, high-impact problems from zero to production —
-              deep in TypeScript, Next.js, Rust, and agentic AI — and lifting teams through
-              documentation, technical leadership, and mentorship.{" "}
-              <Link href="/resume/" className="text-primary underline-offset-4 hover:underline">
-                See the full resume
-              </Link>
-              .
-            </p>
-          </div>
+        <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+          About
+        </h2>
+        <div className="mt-4 max-w-5xl space-y-4">
+          <p className="leading-relaxed text-foreground/90">
+            I'm a staff-level engineer with 11+ years building web applications end-to-end —
+            taking flagship platforms from a rough proof-of-concept to the top of a company's
+            revenue, then architecting them into systems whole teams build on. Over the past year
+            and a half, that work has centered on shipping AI products into production. I lean
+            hard on coding agents as productivity tools, but I treat them as exactly that:
+            amplifiers, never a substitute for deep domain knowledge or the judgment that only
+            comes from practical experience. I also believe great products are never built by
+            programmers alone — the people in QA, project management, and customer relations are
+            the unsung heroes behind every launch I'm proud of. And I think the discipline itself
+            belongs to everyone: at its core, programming is just problem decomposition and
+            logical reasoning — a skill worth teaching early, especially to kids, and one that
+            pays off in every corner of work.
+          </p>
+          <p className="leading-relaxed text-muted-foreground">
+            I'm at my best owning ambiguous, high-impact problems from zero to production —
+            deep in TypeScript, Next.js, Rust, and agentic AI — and lifting teams through
+            documentation, technical leadership, and mentorship.{" "}
+            <Link href="/resume/" className="text-primary underline-offset-4 hover:underline">
+              See the full resume
+            </Link>
+            .
+          </p>
         </div>
       </section>
 
