@@ -76,16 +76,19 @@ function resumeHtml(): string {
     .join("\n");
 
   const projects = resume.projects
-    .map(
-      (p) => `
+    .map((p) => {
+      const url = p.website ?? p.href;
+      return `
       <div class="entry">
         <div class="entry-head">
-          <span class="entry-title"><strong>${esc(p.name)}</strong></span>
+          <span class="entry-title"><strong>${esc(p.name)}</strong>${
+            url ? ` <span class="entry-url">${esc(shortLink(url))}</span>` : ""
+          }</span>
           <span class="entry-meta">${esc(p.year)}</span>
         </div>
         <p>${esc(p.description)}</p>
-      </div>`,
-    )
+      </div>`;
+    })
     .join("\n");
 
   const education = resume.education
@@ -141,6 +144,8 @@ const CSS = `
   .entry-head { display: flex; justify-content: space-between; align-items: baseline;
                 gap: 12px; margin: 0 0 3px; }
   .entry-title { font-size: 11.5px; }
+  .entry-url { font-size: 9.5px; color: #666; font-weight: 400; }
+  .entry-url::before { content: "· "; color: #aaa; }
   .entry-meta { font-size: 9.5px; color: #555; white-space: nowrap; }
   ul { margin: 0 0 4px; padding-left: 17px; }
   li { margin: 0 0 3px; break-inside: avoid; }
