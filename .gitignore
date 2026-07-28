@@ -17,8 +17,9 @@ public/search-index.json
 # debug
 npm-debug.log*
 
-# local env files
-.env*.local
+# local env files — never commit real keys; .env.example is the tracked template
+.env*
+!.env.example
 
 # vercel
 .vercel

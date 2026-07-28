@@ -10,6 +10,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "search-index": "bun run scripts/build-search-index.ts",
+    "secrets": "bun run scripts/push-secrets.ts",
     "clean": "rm -rf .next out public/search-index.json",
     "ui:add": "shadcn@latest add"
   },

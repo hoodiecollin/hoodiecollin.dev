@@ -36,7 +36,9 @@ inlined from a **GitHub secret** rather than Vercel env.
 Required GitHub Actions secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`,
 `VERCEL_PROJECT_ID` (link the CLI to the Vercel project — the org/project IDs come
 from `vercel link` locally or the project's `.vercel/project.json`), and
-`NEXT_PUBLIC_POSTHOG_KEY`.
+`NEXT_PUBLIC_POSTHOG_KEY`. These live in 1Password (Private → "hoodiecollin.dev
+deploy"); `bun run secrets` syncs them from there into the repo's GitHub Actions
+secrets (needs `op` + `gh` signed in).
 
 `vercel.json` carries the platform-level config (applied at the edge, since
 `output: "export"` ignores `next.config` `headers()`):
