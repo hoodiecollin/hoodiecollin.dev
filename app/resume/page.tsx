@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import { cn, container } from "@/lib/utils";
 import { site } from "@/lib/site";
 import { resume } from "@/lib/resume";
-import { ResumeActions } from "@/components/resume-actions";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Resume",
@@ -34,7 +34,11 @@ export default function ResumePage() {
         >
           <ArrowLeft className="size-3.5" /> Home
         </Link>
-        <ResumeActions />
+        <Button asChild size="lg">
+          <a href={site.resumePdf} download>
+            <Download /> Download PDF
+          </a>
+        </Button>
       </div>
 
       <article className="resume-sheet mt-8">
@@ -81,7 +85,7 @@ export default function ResumePage() {
         <Section title="Experience">
           <div className="space-y-6">
             {resume.experience.map((job) => (
-              <div key={`${job.company}-${job.period}`} className="break-inside-avoid">
+              <div key={`${job.company}-${job.period}`}>
                 <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                   <h3 className="font-semibold text-foreground">
                     {job.company} <span className="text-muted-foreground">— {job.role}</span>
