@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "search-index": "bun run scripts/build-search-index.ts",
     "resume:pdf": "bun run scripts/build-resume-pdf.ts",
+    "resume:variants": "bun run scripts/build-resume-variants.ts",
     "secrets": "bun run scripts/push-secrets.ts",
     "clean": "rm -rf .next out public/search-index.json",
     "ui:add": "shadcn@latest add"
