@@ -19,7 +19,7 @@ bun dev           # dev server on http://localhost:3000
 bun typecheck     # tsc --noEmit
 bun run build     # static export → ./out (NODE_ENV=production)
 bun run resume:pdf      # regenerate the public résumé PDF (needs Chrome)
-bun run resume:variants # build the private per-slant application PDFs → resume-pdfs/
+bun run resume:variants # emit private per-slant records → ~/Documents/resume/ (md + pdf + index.json)
 bun run clean     # drop .next / out / generated search index
 ```
 
@@ -92,10 +92,18 @@ Two lightweight, privacy-conscious layers, both **inert in local dev**:
     CI runs on GitHub's `ubuntu-22.04` runner, which ships Chrome, so the PDF is
     rebuilt fresh on every deploy; locally it skips gracefully in `bun dev` if
     Chrome is absent (`bun run resume:pdf` to refresh).
-  - **Private** — `bun run resume:variants` builds all three slants **with** the
-    phone number into `resume-pdfs/` (gitignored, never deployed) — the tailored
-    documents to attach to applications. Rendering is shared via
-    `scripts/resume-pdf.ts`.
+  - **Private** — `bun run resume:variants` emits all three slants **with** the
+    phone number into `~/Documents/resume/` (outside the repo, never deployed) —
+    the tailored documents to attach to applications. Each slant gets a Markdown
+    file and (when Chrome is present) a PDF, plus an `index.json` manifest of the
+    slant taxonomy. That manifest is the **published contract the job-search
+    pipeline reads** for its slants, so the two repos share data, not source. PDF
+    rendering is shared via `scripts/resume-pdf.ts`, Markdown via
+    `scripts/resume-markdown.ts`.
+
+    The taxonomy itself (keys, labels, `slant:*` tracker labels, when-to-send)
+    lives in `lib/resume-slants.ts` — the in-repo source of truth baked into the
+    emitted manifest.
 
 ## Structure
 
@@ -104,5 +112,5 @@ app/                 routes (landing, /writing, /writing/[slug], /resume) + layo
 components/           chrome (header/footer/nav/search), mdx/, ui/ (shadcn)
 content/writing/      MDX posts
 lib/                  site config, resume data, mdx loader, search, toc, util helpers
-scripts/              build-search-index.ts + build-resume-pdf.ts (prebuild); resume-pdf.ts (shared renderer) + build-resume-variants.ts (private slants)
+scripts/              build-search-index.ts + build-resume-pdf.ts (prebuild); resume-pdf.ts / resume-markdown.ts (shared renderers) + build-resume-variants.ts (private slant records → ~/Documents/resume/)
 ```
