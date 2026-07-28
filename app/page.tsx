@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, FileText, Mail } from "lucide-react";
+import { ArrowRight, ArrowUpRight, FileText, Globe, Mail } from "lucide-react";
 import { getAllPosts } from "@/lib/mdx";
 import { cn, container, formatDate } from "@/lib/utils";
 import { site } from "@/lib/site";
-import { resume } from "@/lib/resume";
+import { resume, type ResumeProject } from "@/lib/resume";
 import { GitHubIcon, LinkedInIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
@@ -15,7 +15,8 @@ const socials = [
 
 export default function HomePage() {
   const posts = getAllPosts().slice(0, 5);
-  const projects = resume.projects;
+  const featured = resume.projects.filter((p) => p.featured);
+  const rest = resume.projects.filter((p) => !p.featured);
 
   return (
     <main className={cn(container, "py-16 sm:py-24")}>
@@ -96,46 +97,15 @@ export default function HomePage() {
         <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
           Projects
         </h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => {
-            const inner = (
-              <>
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-medium transition-colors group-hover:text-primary">
-                    {project.name}
-                  </h3>
-                  <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                    {project.year}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {project.description}
-                </p>
-                {project.href ? (
-                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
-                    View on GitHub <ArrowUpRight className="size-3.5" />
-                  </span>
-                ) : null}
-              </>
-            );
-            const className =
-              "group flex flex-col rounded-xl border border-border/60 bg-card/40 p-5 transition-colors hover:border-border hover:bg-card";
-            return project.href ? (
-              <a
-                key={project.name}
-                href={project.href}
-                target="_blank"
-                rel="noreferrer noopener"
-                className={className}
-              >
-                {inner}
-              </a>
-            ) : (
-              <div key={project.name} className={className}>
-                {inner}
-              </div>
-            );
-          })}
+
+        {featured.map((project) => (
+          <FeaturedProjectCard key={project.name} project={project} />
+        ))}
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {rest.map((project) => (
+            <ProjectCard key={project.name} project={project} />
+          ))}
         </div>
       </section>
 
@@ -179,5 +149,89 @@ export default function HomePage() {
         )}
       </section>
     </main>
+  );
+}
+
+/** Bare host for a link label, e.g. "https://forgedb.dev/" → "forgedb.dev". */
+function shortHost(url: string): string {
+  return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+}
+
+/** Prominent, full-width card for a highlighted project (logo, website + repo). */
+function FeaturedProjectCard({ project }: { project: ResumeProject }) {
+  return (
+    <div className="mt-6 overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.08] via-card/40 to-transparent p-6 sm:p-8">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+        {project.logo ? (
+          // eslint-disable-next-line @next/next/no-img-element -- static SVG, unoptimized export
+          <img src={project.logo} alt="" aria-hidden className="size-14 shrink-0 sm:size-16" />
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">{project.name}</h3>
+            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-primary">
+              Featured
+            </span>
+            <span className="ml-auto shrink-0 font-mono text-xs text-muted-foreground">
+              {project.year}
+            </span>
+          </div>
+          <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
+            {project.description}
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            {project.website ? (
+              <Button asChild size="sm">
+                <a href={project.website} target="_blank" rel="noreferrer noopener">
+                  <Globe /> {shortHost(project.website)}
+                </a>
+              </Button>
+            ) : null}
+            {project.href ? (
+              <Button asChild size="sm" variant="outline">
+                <a href={project.href} target="_blank" rel="noreferrer noopener">
+                  <GitHubIcon /> GitHub
+                </a>
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Standard project card for the grid; shows a brand mark when the project has one. */
+function ProjectCard({ project }: { project: ResumeProject }) {
+  const inner = (
+    <>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          {project.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element -- static SVG, unoptimized export
+            <img src={project.logo} alt="" aria-hidden className="size-7 shrink-0" />
+          ) : null}
+          <h3 className="truncate font-medium transition-colors group-hover:text-primary">
+            {project.name}
+          </h3>
+        </div>
+        <span className="shrink-0 font-mono text-xs text-muted-foreground">{project.year}</span>
+      </div>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
+      {project.href ? (
+        <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
+          View on GitHub <ArrowUpRight className="size-3.5" />
+        </span>
+      ) : null}
+    </>
+  );
+  const className =
+    "group flex flex-col rounded-xl border border-border/60 bg-card/40 p-5 transition-colors hover:border-border hover:bg-card";
+  return project.href ? (
+    <a href={project.href} target="_blank" rel="noreferrer noopener" className={className}>
+      {inner}
+    </a>
+  ) : (
+    <div className={className}>{inner}</div>
   );
 }
