@@ -107,9 +107,9 @@ export default function ResumePage() {
               <div key={project.name} className="break-inside-avoid">
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="font-semibold text-foreground">
-                    {project.href ? (
+                    {project.website ?? project.href ? (
                       <a
-                        href={project.href}
+                        href={project.website ?? project.href}
                         target="_blank"
                         rel="noreferrer noopener"
                         className="transition-colors hover:text-primary"
@@ -120,8 +120,18 @@ export default function ResumePage() {
                       project.name
                     )}
                   </h3>
-                  <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                    {project.year}
+                  <span className="flex shrink-0 items-center gap-2 font-mono text-xs text-muted-foreground">
+                    {project.website && project.href ? (
+                      <a
+                        href={project.href}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="transition-colors hover:text-primary"
+                      >
+                        source
+                      </a>
+                    ) : null}
+                    <span>{project.year}</span>
                   </span>
                 </div>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
