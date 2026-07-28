@@ -1,0 +1,101 @@
+---
+title: "Learning to program, and leveling up once you can"
+description: "At its core, programming is problem decomposition and logical reasoning — a skill worth teaching everyone. Here's how to build it, and how to keep getting better after the basics stop being the hard part."
+date: "2026-07-28"
+---
+
+I think programming is one of the most broadly useful things a person can learn,
+and I don't mean that in the "learn to code, get a job" sense. Strip away the
+syntax and the tooling and what's left is problem decomposition and logical
+reasoning: take something big and vague, break it into pieces small enough to
+reason about, and put them back together so they actually work. That skill pays
+off in law, medicine, plumbing, running a kitchen — anywhere. It's why I think
+kids should learn it early, in a friendly language like Python or JavaScript, the
+same way we teach arithmetic. Not because they'll all become engineers, but
+because "break the problem down, then reason through it" is a life skill that
+happens to be teachable through code.
+
+So this is really two essays. One for the person starting out, and one for the
+engineer who's competent and wondering why the growth slowed down.
+
+## Learning it in the first place
+
+The single most common way people fail to learn programming is by trying to learn
+*about* it instead of *doing* it. Courses, videos, and books feel like progress —
+you're absorbing information — but the skill isn't information. It's the ability to
+sit in front of a blank file and a broken program and reason your way forward.
+That's a muscle, and you only build it under load.
+
+A few things I'd tell anyone starting:
+
+- **Build things you actually want to exist.** Motivation beats optimal curriculum
+  every time. A janky tool you care about will teach you more than a polished
+  course you're grinding through out of duty.
+- **Get comfortable being stuck.** Being stuck isn't a sign you're failing at
+  programming — being stuck *is* programming. The job is largely the practiced art
+  of being confused and working your way out of it methodically.
+- **Read errors like clues, not verdicts.** A beginner sees a stack trace as "I
+  broke it." An experienced person sees a fairly specific message telling them
+  where to look next. The trace is on your side.
+
+The whole game at this stage is closing the loop between an idea in your head and
+a thing running on the screen, over and over, until decomposition starts to feel
+automatic.
+
+## Leveling up after the basics
+
+Here's the thing nobody warns you about: the skills that get you from beginner to
+competent are almost the *opposite* of the ones that get you from competent to
+senior. Early on it's all about the code — syntax, algorithms, making the thing
+work. Later, the code is the easy part. The hard part becomes judgment.
+
+**Optimize for depth of understanding, not breadth of familiarity.** It's tempting
+to collect frameworks like merit badges. But someone who deeply understands how
+one database, one language, and one runtime actually work will run circles around
+someone with a shallow acquaintance with twelve. Depth transfers; breadth mostly
+doesn't. When you understand *why* something works, the next tool is a translation
+exercise instead of a fresh start.
+
+**Learn to read code, not just write it.** You'll spend far more of your career
+reading than writing. The engineers who level up fastest are voracious readers of
+other people's code — the framework you depend on, the standard library, the
+messy service nobody wants to touch. Every codebase you read is a set of decisions
+someone made under constraints, and reverse-engineering the *why* is how you build
+taste.
+
+**Chase the problems just past your reach.** You grow at the edge of your
+competence, not in the comfortable middle. The task you're pretty sure you can do
+teaches you almost nothing. Volunteer for the one that scares you slightly.
+
+<Callout type="tip" title="A concrete drill">
+  Take a piece of software you use and admire, and try to rebuild a small slice of
+  it from scratch — a toy version of a build tool, a router, a state manager.
+  You'll understand the real thing at a depth no tutorial delivers, because you'll
+  have hit the same walls its authors did.
+</Callout>
+
+## Where the coding agents fit
+
+I can't write this in 2026 and skip the obvious question: if an AI can write the
+code, why build any of this the hard way?
+
+I use coding agents constantly, and they're genuinely one of the biggest
+productivity multipliers I've seen in my career. But *multiplier* is the operative
+word. They multiply the judgment you already have — and they multiply zero to
+zero. An agent will happily generate a plausible, confident, subtly wrong solution
+to a problem you don't understand, and if you can't tell, you'll ship it. The
+person who has done the reasoning themselves knows what to ask for, recognizes
+when the answer is off, and catches the failure the model couldn't. The person who
+skipped that has outsourced not just the typing but the thinking, and it shows the
+moment anything goes non-standard.
+
+So the leveling-up advice doesn't change in the age of agents. If anything it
+sharpens: the mechanical parts are increasingly automated, which makes the
+irreplaceable parts — deep domain knowledge, hard-won judgment, the ability to
+reason about a problem nobody has solved before — *more* valuable, not less. The
+tool is extraordinary. It is not a substitute for knowing what you're doing, and I
+don't expect it to become one.
+
+Learn to reason. Learn it deeply. Then use every tool you can get your hands on to
+go faster — including the ones that write code for you. Just make sure you're the
+one who could have written it.
