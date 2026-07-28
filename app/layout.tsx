@@ -9,6 +9,7 @@ import { Providers } from "./providers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CommandMenu } from "@/components/search";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -46,6 +47,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
           <CommandMenu />
         </Providers>
+        {/*
+          Vercel Web Analytics — pageview/visitor baseline that runs alongside the
+          PostHog `/relay` proxy. Inert off-Vercel / in local dev.
+        */}
+        <Analytics />
       </body>
     </html>
   );
