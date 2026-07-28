@@ -27,9 +27,19 @@ store). `bun dev` runs as a normal Node server so route handlers work locally.
 
 ## Deploy
 
-Deployed to Vercel as a static export. `vercel.json` carries the platform-level
-config (applied at the edge, since `output: "export"` ignores `next.config`
-`headers()`):
+**Built in GitHub Actions, deployed prebuilt to Vercel** — Vercel serves, it
+doesn't build. `.github/workflows/deploy.yml` runs `vercel build` on the GH
+runner (push to `main` → production, PRs → preview) and `vercel deploy --prebuilt`
+uploads the output. Building in CI is what lets `NEXT_PUBLIC_POSTHOG_KEY` be
+inlined from a **GitHub secret** rather than Vercel env.
+
+Required GitHub Actions secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`,
+`VERCEL_PROJECT_ID` (link the CLI to the Vercel project — the org/project IDs come
+from `vercel link` locally or the project's `.vercel/project.json`), and
+`NEXT_PUBLIC_POSTHOG_KEY`.
+
+`vercel.json` carries the platform-level config (applied at the edge, since
+`output: "export"` ignores `next.config` `headers()`):
 
 - **Security headers** on every route (`X-Content-Type-Options`, `X-Frame-Options`,
   `Referrer-Policy`, `Permissions-Policy`, HSTS).
@@ -45,9 +55,9 @@ Two lightweight, privacy-conscious layers, both **inert in local dev**:
 - **Vercel Web Analytics** — `<Analytics />` in `app/layout.tsx`; zero-config on
   Vercel.
 - **PostHog** — initialised in `app/providers.tsx` only when
-  `NEXT_PUBLIC_POSTHOG_KEY` is set (see `.env.example`). Set it in the Vercel
-  project env for production/preview; pageviews are captured manually for
-  app-router SPA navigations.
+  `NEXT_PUBLIC_POSTHOG_KEY` is set (see `.env.example`). The key lives in GitHub
+  Actions secrets and is inlined at build time (see **Deploy**); pageviews are
+  captured manually for app-router SPA navigations.
 
 ## Content
 
