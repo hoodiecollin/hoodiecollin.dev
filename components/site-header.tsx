@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn, container } from "@/lib/utils";
 import { site, headerNav } from "@/lib/site";
-import { Logo, Wordmark, GitHubIcon } from "@/components/icons";
+import { Logo, Wordmark, GitHubIcon, LinkedInIcon } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SearchTrigger } from "@/components/search";
 import { MobileNav } from "@/components/mobile-nav";
@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/button";
 export function SiteHeader() {
   const pathname = usePathname();
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="mx-auto flex h-14 max-w-3xl items-center gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 print:hidden">
+      <div className={cn(container, "flex h-14 items-center gap-4")}>
         <Link href="/" className="flex items-center gap-2">
           <Logo className="size-6" />
           <Wordmark className="text-[15px]" />
@@ -45,6 +45,17 @@ export function SiteHeader() {
           <Button variant="ghost" size="icon" asChild aria-label="GitHub">
             <a href={site.github} target="_blank" rel="noreferrer noopener">
               <GitHubIcon className="size-4.5" />
+            </a>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            aria-label="LinkedIn"
+            className="hidden sm:inline-flex"
+          >
+            <a href={site.linkedin} target="_blank" rel="noreferrer noopener">
+              <LinkedInIcon className="size-4.5" />
             </a>
           </Button>
           <ThemeToggle />
