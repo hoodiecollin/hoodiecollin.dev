@@ -67,10 +67,11 @@ export default function HomePage() {
         </h2>
         <div className="mt-4 max-w-5xl space-y-4">
           <p className="leading-relaxed text-foreground/90">
-            I'm a staff-level engineer with 11+ years building web applications end-to-end —
-            taking flagship platforms from a rough proof-of-concept to the top of a company's
-            revenue, then architecting them into systems whole teams build on. Over the past year
-            and a half, that work has centered on shipping AI products into production. I lean
+            I'm a staff engineer with 11+ years building web applications end-to-end — increasingly
+            at principal scope: taking flagship platforms from a rough proof-of-concept to the top
+            of a company's revenue, then architecting them into systems whole teams build on and
+            setting the technical direction behind them. Over the past year and a half, that work
+            has centered on shipping AI products into production. I lean
             hard on coding agents as productivity tools, but I treat them as exactly that:
             amplifiers, never a substitute for deep domain knowledge or the judgment that only
             comes from practical experience. I also believe great products are never built by

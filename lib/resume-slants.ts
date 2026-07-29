@@ -12,7 +12,7 @@
  * (summary, skills, bullets) lives in lib/resume.ts, which builds on this.
  */
 
-export type ResumeVariantKey = "staff-principal" | "agentic-ai" | "founding-engineer";
+export type ResumeVariantKey = "generalist" | "agentic-ai" | "founding-engineer";
 
 export interface ResumeSlant {
   key: ResumeVariantKey;
@@ -27,10 +27,10 @@ export interface ResumeSlant {
 /** Every slant, in send-priority order (generalist first). */
 export const resumeSlants: ResumeSlant[] = [
   {
-    key: "staff-principal",
-    label: "Staff / Principal",
+    key: "generalist",
+    label: "Generalist",
     sendFor: "generalist senior-IC roles",
-    trackerLabel: "slant:staff-principal",
+    trackerLabel: "slant:generalist",
   },
   {
     key: "agentic-ai",

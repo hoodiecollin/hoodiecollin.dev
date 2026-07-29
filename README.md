@@ -84,8 +84,8 @@ Two lightweight, privacy-conscious layers, both **inert in local dev**:
   source of truth for the `/resume` page and every PDF, so they can't drift. It's
   modelled as **one shared base** (experience, projects, education, contact) plus
   thin **per-slant overrides** (title, summary, skills, reworded bullets), merged
-  by `resolveResume(key, { includePhone })`. Three slants: `staff-principal`
-  (generalist), `agentic-ai`, and `founding-engineer`.
+  by `resolveResume(key, { includePhone })`. Three slants: `generalist`,
+  `agentic-ai`, and `founding-engineer`.
   - **Public** — the generalist slant with the phone number omitted. `/resume`
     renders it, and `scripts/build-resume-pdf.ts` builds it to
     `public/collin-kokotas-resume.pdf` (gitignored, regenerated in `prebuild`).

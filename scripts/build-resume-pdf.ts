@@ -1,8 +1,8 @@
 /// <reference types="bun" />
 /**
  * Build the PUBLIC résumé PDF at public/collin-kokotas-resume.pdf — the file the
- * site's "Download PDF" button serves. This is the generalist (staff-principal)
- * slant with the phone number omitted. Runs as part of `prebuild`, and standalone
+ * site's "Download PDF" button serves. This is the `generalist` slant with the
+ * phone number omitted. Runs as part of `prebuild`, and standalone
  * via `bun run resume:pdf`.
  *
  * Rendering lives in scripts/resume-pdf.ts (shared with the private per-slant

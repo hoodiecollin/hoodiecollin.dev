@@ -11,8 +11,8 @@
  *   variants     — per-slant title, summary, skills, and (optional) reworded bullets.
  *   resolveResume(key, { includePhone }) — merges base + a variant into a full résumé.
  *
- * The PUBLIC surface (this repo's deployed site + `public/…​.pdf`) is the generalist
- * `staff-principal` slant with the phone number omitted — that's the `resume` export
+ * The PUBLIC surface (this repo's deployed site + `public/…​.pdf`) is the
+ * `generalist` slant with the phone number omitted — that's the `resume` export
  * below, which the /resume page and scripts/build-resume-pdf.ts consume. The private
  * application records (scripts/build-resume-variants.ts) render every slant WITH the
  * phone number into ~/Documents/resume/ (Markdown + PDF + an index.json manifest) and
@@ -218,16 +218,16 @@ const base = {
 } as const;
 
 // ────────────────────────────────────────────────────────────────────────────
-// Variants — the intentionally-divergent slants. staff-principal is the generalist
+// Variants — the intentionally-divergent slants. generalist is the default
 // (no bullet overrides); agentic-ai and founding-engineer rewrite title, summary,
 // skills, and the bullets that actually change per slant.
 // ────────────────────────────────────────────────────────────────────────────
 
 const variantContent: Record<ResumeVariantKey, VariantContent> = {
-  "staff-principal": {
-    title: "Staff / Principal Software Engineer",
+  generalist: {
+    title: "Staff Software Engineer",
     summary:
-      "Staff-level engineer and product-minded builder with 11+ years shipping web applications and AI products end-to-end. I conceived, pitched, and single-handedly built Velo™ — Recentive's flagship AI predictive-analytics platform — grew it into the company's #1 revenue source, and scaled it into a platform multiple teams contribute to. Deep in TypeScript/Next.js and agentic AI; at my best owning ambiguous, high-impact problems from zero to production, and lifting teams through documentation, technical leadership, and mentorship.",
+      "Staff engineer and product-minded builder with 11+ years shipping web applications and AI products end-to-end — increasingly at principal scope. I conceived, pitched, and single-handedly built Velo™ — Recentive's flagship AI predictive-analytics platform — grew it into the company's #1 revenue source, and architected it into a platform multiple teams now build on. Deep in TypeScript/Next.js and agentic AI; at my best owning ambiguous, high-impact problems from zero to production, setting the technical direction others build behind, and lifting teams through architecture, documentation, and mentorship.",
     skills: [
       { label: "Languages", items: "TypeScript / JavaScript (11+ yrs), Rust, Go, Python" },
       {
@@ -366,4 +366,4 @@ export function resolveResume(
  * The PUBLIC résumé: the generalist slant with the phone number omitted. This is
  * what the /resume page and the deployed PDF (scripts/build-resume-pdf.ts) render.
  */
-export const resume = resolveResume("staff-principal");
+export const resume = resolveResume("generalist");
