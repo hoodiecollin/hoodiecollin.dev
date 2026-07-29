@@ -94,9 +94,12 @@ Two lightweight, privacy-conscious layers, both **inert in local dev**:
     Chrome is absent (`bun run resume:pdf` to refresh).
   - **Private** — `bun run resume:variants` emits all three slants **with** the
     phone number into `~/Documents/resume/` (outside the repo, never deployed) —
-    the tailored documents to attach to applications. Each slant gets a Markdown
-    file and (when Chrome is present) a PDF, plus an `index.json` manifest of the
-    slant taxonomy. That manifest is the **published contract the job-search
+    the tailored documents to attach to applications. Each slant gets its own
+    directory (`generalist/`, `agentic-ai/`, `founding-engineer/`) holding a
+    Markdown file and (when Chrome is present) a PDF, both named
+    `collin-kokotas-resume.*` so an attached résumé never leaks its slant by
+    filename. An `index.json` manifest maps the slant taxonomy to those
+    directory-relative paths. That manifest is the **published contract the job-search
     pipeline reads** for its slants, so the two repos share data, not source. PDF
     rendering is shared via `scripts/resume-pdf.ts`, Markdown via
     `scripts/resume-markdown.ts`.

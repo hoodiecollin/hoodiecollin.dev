@@ -7,9 +7,13 @@
  *
  *   ~/Documents/resume/
  *     index.json                                    ← taxonomy + file map
- *     collin-kokotas-staff-principal.{md,pdf}       (slant:staff-principal)
- *     collin-kokotas-agentic-ai.{md,pdf}            (slant:agentic)
- *     collin-kokotas-founding-engineer.{md,pdf}     (slant:founding)
+ *     generalist/collin-kokotas-resume.{md,pdf}         (slant:generalist)
+ *     agentic-ai/collin-kokotas-resume.{md,pdf}         (slant:agentic)
+ *     founding-engineer/collin-kokotas-resume.{md,pdf}  (slant:founding)
+ *
+ * Every slant emits the SAME filename (collin-kokotas-resume.*), separated only by
+ * its slant-named directory — so whichever one you attach to an email reads
+ * identically by filename and never leaks the slant to the recipient.
  *
  * This is the published contract the job-search pipeline consumes: it reads
  * `~/Documents/resume/index.json` for its slant taxonomy instead of importing this
@@ -26,6 +30,9 @@ import { findChrome, renderResumePdf } from "./resume-pdf.ts";
 import { resumeMarkdown } from "./resume-markdown.ts";
 
 const OUT_DIR = join(homedir(), "Documents", "resume");
+// Shared basename for every slant — the slant is carried by the directory, not the
+// filename, so an attached résumé always reads as `collin-kokotas-resume`.
+const STEM = "collin-kokotas-resume";
 
 interface ManifestSlant {
   key: string;
@@ -45,23 +52,25 @@ async function main() {
   for (const key of variantOrder) {
     const v = variants[key];
     const resolved = resolveResume(key, { includePhone: true });
-    const stem = `collin-kokotas-${key}`;
-    const mdName = `${stem}.md`;
-    const pdfName = `${stem}.pdf`;
+    // Each slant lives in its own directory; the file basename is identical across
+    // slants. Manifest paths stay OUT_DIR-relative (e.g. `generalist/…`).
+    await mkdir(join(OUT_DIR, key), { recursive: true });
+    const mdRel = join(key, `${STEM}.md`);
+    const pdfRel = join(key, `${STEM}.pdf`);
 
     // Markdown + manifest carry the contract job-search reads — no Chrome needed.
-    await writeFile(join(OUT_DIR, mdName), resumeMarkdown(resolved));
+    await writeFile(join(OUT_DIR, mdRel), resumeMarkdown(resolved));
 
     let pdf: string | null = null;
     if (chrome) {
-      const size = await renderResumePdf(chrome, resolved, join(OUT_DIR, pdfName));
-      pdf = pdfName;
-      console.log(`✓ ${v.label.padEnd(18)} ${mdName} + ${pdfName} (${(size / 1024).toFixed(0)} KB) — ${v.trackerLabel}`);
+      const size = await renderResumePdf(chrome, resolved, join(OUT_DIR, pdfRel));
+      pdf = pdfRel;
+      console.log(`✓ ${v.label.padEnd(18)} ${mdRel} + ${pdfRel} (${(size / 1024).toFixed(0)} KB) — ${v.trackerLabel}`);
     } else {
-      console.log(`✓ ${v.label.padEnd(18)} ${mdName} — ${v.trackerLabel} (PDF skipped: no Chrome)`);
+      console.log(`✓ ${v.label.padEnd(18)} ${mdRel} — ${v.trackerLabel} (PDF skipped: no Chrome)`);
     }
 
-    slants.push({ key: v.key, label: v.label, trackerLabel: v.trackerLabel, sendFor: v.sendFor, markdown: mdName, pdf });
+    slants.push({ key: v.key, label: v.label, trackerLabel: v.trackerLabel, sendFor: v.sendFor, markdown: mdRel, pdf });
   }
 
   const manifest = { source: "hoodiecollin.dev", generatedAt: new Date().toISOString(), slants };
