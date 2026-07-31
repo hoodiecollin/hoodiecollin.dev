@@ -118,6 +118,11 @@ Two lightweight, privacy-conscious layers, both **inert in local dev**:
     The taxonomy itself (keys, labels, `slant:*` tracker labels, when-to-send)
     lives in `lib/resume-slants.ts` — the in-repo source of truth baked into the
     emitted manifest.
+  - **Projects** are shared between the résumé and the home page, but the two
+    lists aren't identical. A project marked `omitFromResume` shows on the site
+    and is filtered out by `resolveResume()` — one choke point, so `/resume`, the
+    public PDF, and all three private slants drop it together. The home-page grid
+    reads the unfiltered `siteProjects` export instead.
 
 ## Structure
 
