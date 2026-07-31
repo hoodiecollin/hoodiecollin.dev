@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { cn, container } from "@/lib/utils";
-import { site } from "@/lib/site";
+import { site, headerNav } from "@/lib/site";
 import { Logo, Wordmark, GitHubIcon, LinkedInIcon } from "@/components/icons";
 
-const explore = [
-  { title: "Writing", href: "/writing/" },
-  { title: "Resume", href: "/resume/" },
-];
+// Same list as the header nav, so the two can't drift apart.
+const explore = headerNav;
 
 export function SiteFooter() {
   const year = new Date().getFullYear();

@@ -15,5 +15,6 @@ export const site = {
 /** Top-level nav shown in the site header. */
 export const headerNav: { title: string; href: string }[] = [
   { title: "Writing", href: "/writing/" },
+  { title: "Playbook", href: "/ai-pm-playbook/" },
   { title: "Resume", href: "/resume/" },
 ];
