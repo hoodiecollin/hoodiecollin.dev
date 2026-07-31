@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAtom } from "jotai";
 import { Search } from "lucide-react";
 import { searchOpenAtom } from "@/lib/atoms";
-import type { SearchDoc } from "@/lib/search";
+import { searchGroups, type SearchDoc } from "@/lib/search";
 import {
   Command,
   CommandDialog,
@@ -70,34 +70,41 @@ export function CommandMenu() {
     <CommandDialog
       open={open}
       onOpenChange={setOpen}
-      title="Search writing"
-      description="Find posts across the site"
+      title="Search the site"
+      description="Find posts and pages across the site"
       className="max-w-xl"
     >
       {/* This shadcn variant's CommandDialog is only the Dialog shell — it does
           not provide the cmdk <Command> store, so we wrap the content here. */}
       <Command shouldFilter>
-        <CommandInput placeholder="Search writing…" />
+        <CommandInput placeholder="Search…" />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Writing">
-            {docs.map((d) => (
-              <CommandItem
-                key={d.href}
-                value={`${d.title} ${d.headings.join(" ")} ${d.excerpt}`}
-                onSelect={() => go(d.href)}
-              >
-                <div className="flex flex-col">
-                  <span>{d.title}</span>
-                  {d.description ? (
-                    <span className="line-clamp-1 text-xs text-muted-foreground">
-                      {d.description}
-                    </span>
-                  ) : null}
-                </div>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {searchGroups.map((group) => {
+            // Older cached indexes predate `group`; treat those entries as Writing.
+            const items = docs.filter((d) => (d.group ?? "Writing") === group);
+            if (items.length === 0) return null;
+            return (
+              <CommandGroup key={group} heading={group}>
+                {items.map((d) => (
+                  <CommandItem
+                    key={d.href}
+                    value={`${d.title} ${d.headings.join(" ")} ${d.excerpt}`}
+                    onSelect={() => go(d.href)}
+                  >
+                    <div className="flex flex-col">
+                      <span>{d.title}</span>
+                      {d.description ? (
+                        <span className="line-clamp-1 text-xs text-muted-foreground">
+                          {d.description}
+                        </span>
+                      ) : null}
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            );
+          })}
         </CommandList>
       </Command>
     </CommandDialog>
