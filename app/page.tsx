@@ -212,22 +212,44 @@ function ProjectCard({ project }: { project: ResumeProject }) {
             // eslint-disable-next-line @next/next/no-img-element -- static SVG, unoptimized export
             <img src={project.logo} alt="" aria-hidden className="size-7 shrink-0" />
           ) : null}
-          <h3 className="truncate font-medium transition-colors group-hover:text-primary">
+          {/* Wraps rather than truncates — a clipped project name reads as a typo,
+              and `mt-auto` on the CTA keeps the cards' bottom edges aligned anyway. */}
+          <h3 className="font-medium leading-snug transition-colors group-hover:text-primary">
             {project.name}
           </h3>
         </div>
         <span className="shrink-0 font-mono text-xs text-muted-foreground">{project.year}</span>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
-      {project.href ? (
-        <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
-          View on GitHub <ArrowUpRight className="size-3.5" />
+      {project.page || project.href ? (
+        // `mt-auto` pins the CTA to the card's bottom edge, so cards stretched by a
+        // taller neighbor in the same grid row don't leave a gap under their link.
+        <span className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
+          {project.page ? (
+            <>
+              Read more <ArrowRight className="size-3.5" />
+            </>
+          ) : (
+            <>
+              View on GitHub <ArrowUpRight className="size-3.5" />
+            </>
+          )}
         </span>
       ) : null}
     </>
   );
   const className =
     "group flex flex-col rounded-xl border border-border/60 bg-card/40 p-5 transition-colors hover:border-border hover:bg-card";
+
+  // A project with its own page on this site links there (internal nav); otherwise
+  // the card is a straight shortcut out to the repo.
+  if (project.page) {
+    return (
+      <Link href={project.page} className={className}>
+        {inner}
+      </Link>
+    );
+  }
   return project.href ? (
     <a href={project.href} target="_blank" rel="noreferrer noopener" className={className}>
       {inner}

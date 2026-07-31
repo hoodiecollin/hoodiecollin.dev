@@ -50,6 +50,8 @@ export interface ResumeProject {
   website?: string;
   /** Path (under /public) to a brand mark shown on the home-page card. */
   logo?: string;
+  /** Internal route for a project that has a dedicated page on this site. */
+  page?: string;
   /** Highlight this project with a prominent card on the home page. */
   featured?: boolean;
 }
@@ -190,6 +192,14 @@ const base = {
         "Packages several interchangeable implementations of an operation (sorting, dictionary lookup, more to come) behind one interface, then learns per workload which is fastest via regret-scored adaptive dispatch. One Rust core, shipped as native addons to TypeScript (Node + Bun) and Python.",
       href: "https://github.com/hoodiecollin/optigon",
       logo: "/projects/optigon.svg",
+    },
+    {
+      name: "AI Project-Management Playbook",
+      year: "2026",
+      description:
+        "A portable GitHub project-management methodology organized by exactly two axes — milestone and labels — so a project's state stays derivable from the code instead of asserted by a board that drifts. Ships an idempotent Bun bootstrap script and issue templates.",
+      href: "https://github.com/hoodiecollin/ai-pm-playbook",
+      page: "/ai-pm-playbook/",
     },
     {
       name: "checked-rs",
