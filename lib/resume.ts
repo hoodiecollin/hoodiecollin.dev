@@ -52,6 +52,12 @@ export interface ResumeProject {
   logo?: string;
   /** Internal route for a project that has a dedicated page on this site. */
   page?: string;
+  /**
+   * Show this project on the site but keep it off the résumé. `resolveResume`
+   * filters these out, so /resume, the public PDF, and every private slant drop
+   * them together; the home page reads `siteProjects` and still shows them.
+   */
+  omitFromResume?: boolean;
   /** Highlight this project with a prominent card on the home page. */
   featured?: boolean;
 }
@@ -200,6 +206,7 @@ const base = {
         "A portable GitHub project-management methodology organized by exactly two axes — milestone and labels — so a project's state stays derivable from the code instead of asserted by a board that drifts. Ships an idempotent Bun bootstrap script and issue templates.",
       href: "https://github.com/hoodiecollin/ai-pm-playbook",
       page: "/ai-pm-playbook/",
+      omitFromResume: true,
     },
     {
       name: "checked-rs",
@@ -367,10 +374,17 @@ export function resolveResume(
     summary: v.summary,
     skills: v.skills,
     experience,
-    projects: [...base.projects],
+    projects: base.projects.filter((p) => !p.omitFromResume),
     education: [...base.education],
   };
 }
+
+/**
+ * Every project, including the ones held back from the résumé — what the site
+ * itself (the home-page Projects grid) renders. `resolveResume().projects` is the
+ * narrower, résumé-eligible list.
+ */
+export const siteProjects: ResumeProject[] = [...base.projects];
 
 /**
  * The PUBLIC résumé: the generalist slant with the phone number omitted. This is

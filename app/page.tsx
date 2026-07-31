@@ -3,7 +3,7 @@ import { ArrowRight, ArrowUpRight, FileText, Globe, Mail } from "lucide-react";
 import { getAllPosts } from "@/lib/mdx";
 import { cn, container, formatDate } from "@/lib/utils";
 import { site } from "@/lib/site";
-import { resume, type ResumeProject } from "@/lib/resume";
+import { siteProjects, type ResumeProject } from "@/lib/resume";
 import { GitHubIcon, LinkedInIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
@@ -15,8 +15,8 @@ const socials = [
 
 export default function HomePage() {
   const posts = getAllPosts().slice(0, 5);
-  const featured = resume.projects.filter((p) => p.featured);
-  const rest = resume.projects.filter((p) => !p.featured);
+  const featured = siteProjects.filter((p) => p.featured);
+  const rest = siteProjects.filter((p) => !p.featured);
 
   return (
     <main className={cn(container, "py-16 sm:py-24")}>
