@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Ban, FileCode2, Quote } from "lucide-react";
+import { ArrowLeft, ArrowRight, Ban, Check, FileCode2, Quote, X } from "lucide-react";
 import { cn, container } from "@/lib/utils";
 import { GitHubIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { Disclosure, ExpandAll } from "@/components/disclosure";
 import {
   PLAYBOOK_BOOTSTRAP,
   PLAYBOOK_DOC,
@@ -15,11 +16,18 @@ import {
   axes,
   bannedFields,
   bannedFieldsRationale,
+  boardViews,
+  boardViewsNote,
+  branchQuestion,
+  branchTargetWhy,
+  branchTargets,
   derivedStateRule,
   disciplines,
+  docsDiscipline,
   epicBodyShape,
   experimentRules,
   experimentTest,
+  gapOffTrunkRules,
   gates,
   gatesRationale,
   groundTruthRule,
@@ -27,21 +35,34 @@ import {
   invariants,
   issueTemplates,
   labels,
+  labelsAreTheProcess,
   ladder,
+  ladderPayoff,
   milestoneBoilerplate,
+  milestoneRules,
   playbookSections,
+  publishGap,
+  publishGapApplies,
+  publishGapWhyInvisible,
   quickStart,
+  releaseGateRationale,
+  releaseMechanics,
   roadmapBuckets,
   structuralRules,
   surfaceExclusionRule,
   surfaceNaming,
   surfaces,
+  tldr,
+  tldrWhy,
+  trunkStrategies,
+  trunkStrategyChoice,
+  whereDesignLives,
 } from "@/lib/pm-playbook";
 
 export const metadata: Metadata = {
   title: "AI Project-Management Playbook",
   description:
-    "A portable, two-axis GitHub project-management methodology: milestone + labels and nothing else, epics via native sub-issues, and a design → plan → spec doctrine that keeps every claim pointed at the code.",
+    "A project-management system for GitHub repos, built for working with coding agents: every piece of work is an issue, two things organize them — the release it ships in and its labels — and nothing gets built before a design note and a plan exist.",
 };
 
 export default function PlaybookPage() {
@@ -61,11 +82,11 @@ export default function PlaybookPage() {
           AI Project-Management Playbook
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          A portable project-management system for GitHub repos. All work is Issues, organized
-          by <span className="text-foreground">exactly two orthogonal axes</span> — milestone for{" "}
-          <em>when</em>, labels for <em>what kind</em> — and nothing else decomposes work.
-          Reverse-engineered from the model I worked out running ForgeDB, then generalized so any
-          repo can adopt it.
+          A project-management system for GitHub repos, built for working with coding agents.
+          Every piece of work is an issue, and{" "}
+          <span className="text-foreground">two things organize them</span> — the release it
+          ships in, and its labels. Nothing else. I worked it out running ForgeDB, then
+          generalized it so any repo can pick it up.
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -76,32 +97,40 @@ export default function PlaybookPage() {
           </Button>
           <Button asChild size="lg" variant="outline">
             <a href={PLAYBOOK_DOC} target="_blank" rel="noreferrer noopener">
-              <FileCode2 /> Read PLAYBOOK.md
+              <FileCode2 /> Read the full spec
             </a>
           </Button>
         </div>
       </header>
 
-      {/* The rule everything hangs on */}
-      <blockquote className="mt-10 max-w-3xl rounded-xl border border-primary/30 bg-primary/[0.06] p-5 sm:p-6">
-        <Quote aria-hidden className="size-4 text-primary" />
-        <p className="mt-3 leading-relaxed text-foreground/90">{groundTruthRule}</p>
-      </blockquote>
-
       {/* Body + sticky TOC */}
       <div className="mt-14 lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:items-start lg:gap-12">
-        <div className="min-w-0 max-w-3xl space-y-16">
-          <WhySection />
-          <TwoAxesSection />
-          <LadderSection />
-          <LabelsSection />
-          <ExperimentsSection />
-          <SurfacesSection />
-          <EpicsSection />
-          <GatesSection />
-          <DisciplinesSection />
-          <AntiPatternsSection />
-          <AdoptSection />
+        <div className="min-w-0 max-w-3xl">
+          <TldrSection />
+          <HowItWorksSection />
+
+          {/* Everything below is collapsed by default — the page above is the
+              whole model; these are the details you open when you want them. */}
+          <div className="mt-16">
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                The details
+              </h2>
+              <ExpandAll />
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <LabelsSection />
+              <ReleasesSection />
+              <ExperimentsSection />
+              <SurfacesSection />
+              <EpicsSection />
+              <GatesSection />
+              <PracticeSection />
+              <MistakesSection />
+              <AdoptSection />
+            </div>
+          </div>
         </div>
 
         <nav
@@ -130,56 +159,42 @@ export default function PlaybookPage() {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// Sections
+// The always-open top of the page
 // ────────────────────────────────────────────────────────────────────────────
 
-function WhySection() {
+function TldrSection() {
   return (
-    <Section id="why" title="Why this exists">
-      <p>
-        Every project-management tool I&apos;ve used degrades the same way. You start with a board,
-        then add a Priority field, then a Size field, then a Workstream field — and each one is a
-        second place where the truth about a piece of work is supposed to live. None of them are
-        wired to the code, so they drift the moment you stop hand-feeding them. Eventually you have
-        a board that looks organized and tells you nothing, and the only way to answer &ldquo;what
-        is actually happening&rdquo; is to go read the repo.
-      </p>
-      <p>
-        So this model does the opposite: it deletes fields until only two axes are left, then makes
-        the rules <em>between</em>{" "}them mechanical. If an issue has a milestone it&apos;s scheduled.
-        If it has <Code>plan-next</Code>{" "}it isn&apos;t, and by invariant it can&apos;t also have
-        a milestone. Nothing needs interpretation, so nothing needs a meeting to reconcile.
-      </p>
-      <p>
-        The AI part isn&apos;t a feature bolted on — it&apos;s why the constraints are this severe.
-        I lean hard on coding agents, and an agent is far more literal than a teammate: it will
-        happily act on a stale roadmap doc or a status label nobody updated, and it has no
-        instinct for &ldquo;that card is obviously out of date.&rdquo; The fix is to give it a
-        system where state is <em>derived from artifacts that can&apos;t lie</em>{" "}— does an
-        accepted RFC issue exist, is there a plan on the issue, do the specs pass in CI — rather
-        than asserted by a sticker someone forgot to move. That&apos;s also why the operating
-        disciplines read like instructions to an agent (
-        <Code>gh issue create</Code> before implementing, re-read the issue list each session, keep
-        the cross-links current in both directions): they are.
-      </p>
-      <p>
-        The result is a system a human can read off an issue at a glance and an agent can execute
-        without guessing. Two axes, a handful of hard invariants, and one rule above all of them —
-        the code is ground truth, and everything else is a claim that has to point back at it.
-      </p>
-    </Section>
+    <section id="tldr" className="scroll-mt-20">
+      <h2 className="text-2xl font-bold tracking-tight">TL;DR</h2>
+
+      <ul className="mt-5 space-y-3">
+        {tldr.map((line) => (
+          <li key={line} className="flex gap-3">
+            <Check aria-hidden className="mt-1 size-4 shrink-0 text-primary" />
+            <span className="leading-relaxed text-foreground/90">{line}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p className="mt-6 leading-relaxed text-muted-foreground">{tldrWhy}</p>
+
+      <blockquote className="mt-8 rounded-xl border border-primary/30 bg-primary/[0.06] p-5 sm:p-6">
+        <Quote aria-hidden className="size-4 text-primary" />
+        <p className="mt-3 leading-relaxed text-foreground/90">{groundTruthRule}</p>
+      </blockquote>
+    </section>
   );
 }
 
-function TwoAxesSection() {
+function HowItWorksSection() {
   return (
-    <Section id="two-axes" title="The two-axis core">
-      <p>
-        All work is GitHub Issues, organized by exactly two orthogonal axes — and nothing else
-        decomposes work.
+    <section id="how" className="mt-16 scroll-mt-20">
+      <h2 className="text-2xl font-bold tracking-tight">How it works</h2>
+      <p className="mt-4 leading-relaxed text-foreground/90">
+        Every issue answers two questions, and each question has exactly one mechanism behind it.
       </p>
 
-      <div className="not-prose mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {axes.map((a) => (
           <div key={a.axis} className="rounded-xl border border-border/60 bg-card/40 p-5">
             <p className="font-mono text-xs uppercase tracking-wide text-primary">{a.axis}</p>
@@ -193,39 +208,21 @@ function TwoAxesSection() {
         {structuralRules.map((r) => (
           <li key={r} className="flex gap-2.5">
             <ArrowRight aria-hidden className="mt-1 size-3.5 shrink-0 text-primary" />
-            <span>{r}</span>
+            <span className="leading-relaxed text-foreground/90">{r}</span>
           </li>
         ))}
       </ul>
 
-      <Callout tone="danger" title="There are no Priority, Size, or Workstream fields">
-        <div className="not-prose mb-3 flex flex-wrap gap-2">
-          {bannedFields.map((f) => (
-            <span
-              key={f}
-              className="inline-flex items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 font-mono text-xs text-destructive line-through"
-            >
-              <Ban aria-hidden className="size-3" />
-              {f}
-            </span>
-          ))}
-        </div>
-        <p>{bannedFieldsRationale}</p>
-      </Callout>
-    </Section>
-  );
-}
-
-function LadderSection() {
-  return (
-    <Section id="ladder" title="The commitment ladder">
-      <p>
-        The labels encode one idea: work is ranked by <em>distance from shipped</em>. Every rung
-        has a single, explicit promotion gate to the next.
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">
+        The labels are a ladder, not a pile
+      </h3>
+      <p className="mt-2 leading-relaxed text-foreground/90">
+        They rank work by how far it is from being in a user&apos;s hands. Moving up a rung takes
+        one specific thing each time — never a judgement call.
       </p>
 
       {/* Horizontal ladder — scrolls on narrow screens rather than wrapping. */}
-      <div className="not-prose mt-6 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <div className="mt-6 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <ol className="flex min-w-max items-center gap-2">
           {ladder.map((rung, i) => (
             <li key={rung.rung} className="flex items-center gap-2">
@@ -247,15 +244,15 @@ function LadderSection() {
         </ol>
       </div>
 
-      <div className="not-prose mt-6 divide-y divide-border/60 rounded-xl border border-border/60">
+      <div className="mt-6 divide-y divide-border/60 rounded-xl border border-border/60">
         {ladder.map((rung) => (
-          <div key={rung.rung} className="grid gap-1 p-4 sm:grid-cols-[10rem_1fr] sm:gap-4">
+          <div key={rung.rung} className="grid gap-1 p-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
             <div className="font-mono text-sm text-foreground">{rung.rung}</div>
             <div className="min-w-0">
               <p className="text-sm leading-relaxed text-foreground/90">{rung.means}</p>
               {rung.gate ? (
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  <span className="text-primary">Gate →</span> {rung.gate}
+                  <span className="text-primary">To move up →</span> {rung.gate}
                 </p>
               ) : null}
             </div>
@@ -263,28 +260,25 @@ function LadderSection() {
         ))}
       </div>
 
-      <p className="mt-6">
-        Why it matters: &ldquo;done&rdquo; is ambiguous. The ladder splits it into{" "}
-        <em>code-complete</em> (issue closed) and <em>shipped</em> (release tagged), so the roadmap
-        never over-promises. Every milestone description carries the same line:
-      </p>
-
-      <blockquote className="not-prose mt-4 rounded-lg border-l-2 border-primary/50 bg-muted/30 py-3 pl-4 pr-4 text-sm italic leading-relaxed text-muted-foreground">
-        {milestoneBoilerplate}
-      </blockquote>
-    </Section>
+      <p className="mt-6 leading-relaxed text-foreground/90">{ladderPayoff}</p>
+    </section>
   );
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// The collapsed detail sections
+// ────────────────────────────────────────────────────────────────────────────
+
 function LabelsSection() {
   return (
-    <Section id="labels" title="Labels & invariants">
-      <p>
-        Labels are self-documenting: each label&apos;s <em>description</em> is the process, and the
-        bootstrap script writes those descriptions for you.
-      </p>
+    <Disclosure
+      id="labels"
+      title="Labels, and the rules between them"
+      teaser="The ten labels, and the four rules about which ones can appear together — the rules are what make every question a one-line search."
+    >
+      <p>{labelsAreTheProcess}</p>
 
-      <div className="not-prose mt-6 space-y-3">
+      <div className="mt-6 space-y-3">
         {labels.map((l) => (
           <div key={l.name} className="flex flex-col gap-1.5 sm:flex-row sm:gap-4">
             <div className="shrink-0 sm:w-40">
@@ -295,69 +289,209 @@ function LabelsSection() {
         ))}
       </div>
 
-      <p className="mt-6 text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Plus GitHub&apos;s stock labels (<Code>bug</Code>, <Code>documentation</Code>,{" "}
-        <Code>enhancement</Code>, …) and the <Code>surface:*</Code> delivery labels.
+        <Code>enhancement</Code>, …) and the <Code>surface:*</Code> labels, if the repo ships more
+        than one thing.
       </p>
 
-      <h3 className="mt-10 text-lg font-semibold tracking-tight">The integrity rules</h3>
-      <p className="mt-2">
-        These mutual exclusions keep the two axes clean and make every derived view a one-line
-        filter. Enforce them on every issue.
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">Which labels can coexist</h3>
+      <p>
+        Four rules, enforced on every issue. They&apos;re what keep the two axes from blurring
+        into each other, and they&apos;re why the roadmap can be computed instead of maintained.
       </p>
 
-      <div className="not-prose mt-5 space-y-3">
+      <div className="mt-5 space-y-3">
         {invariants.map((inv) => (
           <div key={inv.rule} className="rounded-xl border border-border/60 bg-card/40 p-4">
-            <p className="font-mono text-sm font-medium text-primary">{inv.rule}</p>
+            <p className="text-sm font-medium text-primary">{inv.rule}</p>
             <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{inv.why}</p>
           </div>
         ))}
       </div>
 
-      <Callout tone="primary" title="The payoff">
+      <Callout tone="primary" title="What that buys you">
         <p>{invariantPayoff}</p>
       </Callout>
-    </Section>
+
+      <Callout tone="danger" title="And what the board deliberately doesn't have">
+        <div className="mb-3 flex flex-wrap gap-2">
+          {bannedFields.map((f) => (
+            <span
+              key={f}
+              className="inline-flex items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 font-mono text-xs text-destructive line-through"
+            >
+              <Ban aria-hidden className="size-3" />
+              {f}
+            </span>
+          ))}
+        </div>
+        <p>{bannedFieldsRationale}</p>
+      </Callout>
+    </Disclosure>
+  );
+}
+
+function ReleasesSection() {
+  return (
+    <Disclosure
+      id="releases"
+      title="Shipping, and what blocks it"
+      teaser="What a milestone is, why closed isn't shipped, and the failure mode where every test passes but nobody can install what you built."
+    >
+      <ul className="space-y-2">
+        {milestoneRules.map((r) => (
+          <li key={r} className="flex gap-2.5">
+            <ArrowRight aria-hidden className="mt-1 size-3.5 shrink-0 text-primary" />
+            <span className="text-sm leading-relaxed text-foreground/90">{r}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p>Paste this into every milestone description:</p>
+
+      <blockquote className="mt-4 rounded-lg border-l-2 border-primary/50 bg-muted/30 px-4 py-3 text-sm italic leading-relaxed text-muted-foreground">
+        {milestoneBoilerplate}
+      </blockquote>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">Release mechanics</h3>
+      <ul className="mt-4 space-y-2">
+        {releaseMechanics.map((r) => (
+          <li key={r} className="flex gap-2.5">
+            <ArrowRight aria-hidden className="mt-1 size-3.5 shrink-0 text-primary" />
+            <span className="text-sm leading-relaxed text-foreground/90">{r}</span>
+          </li>
+        ))}
+      </ul>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">
+        When green tests aren&apos;t enough
+      </h3>
+      <p>{publishGapApplies}</p>
+
+      <Callout tone="danger" title="The publish gap">
+        <p>{publishGap}</p>
+      </Callout>
+
+      <p>{publishGapWhyInvisible}</p>
+
+      <h4 className="mt-8 font-semibold tracking-tight">
+        Two ways to prevent it — pick one, and write it down
+      </h4>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        {trunkStrategies.map((s, i) => (
+          <div key={s.name} className="rounded-xl border border-border/60 bg-card/40 p-5">
+            <p className="font-mono text-xs text-primary">Option {i + 1}</p>
+            <p className="mt-1.5 font-medium">{s.name}</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.how}</p>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              <span className="text-foreground/80">Cost:</span> {s.cost}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p>{trunkStrategyChoice}</p>
+
+      <h4 className="mt-8 font-semibold tracking-tight">If you keep the gap off your main branch</h4>
+      <ul className="mt-4 space-y-2">
+        {gapOffTrunkRules.map((r) => (
+          <li key={r} className="flex gap-2.5">
+            <ArrowRight aria-hidden className="mt-1 size-3.5 shrink-0 text-primary" />
+            <span className="text-sm leading-relaxed text-foreground/90">{r}</span>
+          </li>
+        ))}
+      </ul>
+
+      <h4 className="mt-8 font-semibold tracking-tight">
+        So which branch does a docs or website change go to?
+      </h4>
+      <p>
+        Not a question about which part of the product it belongs to. One question:
+      </p>
+      <p className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm font-medium">
+        {branchQuestion}
+      </p>
+
+      <div className="mt-4 space-y-3">
+        {branchTargets.map((t) => {
+          const yes = t.answer === "Yes";
+          return (
+            <div
+              key={t.answer}
+              className={cn(
+                "rounded-xl border p-4",
+                yes ? "border-primary/30 bg-primary/[0.05]" : "border-border/60 bg-card/40",
+              )}
+            >
+              <p className="flex flex-wrap items-baseline gap-x-2 text-sm font-medium">
+                {yes ? (
+                  <Check aria-hidden className="size-3.5 shrink-0 self-center text-primary" />
+                ) : (
+                  <X aria-hidden className="size-3.5 shrink-0 self-center text-muted-foreground" />
+                )}
+                {t.answer}
+                <span className="text-muted-foreground">→</span>
+                <span className="font-mono text-xs">{t.branch}</span>
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.examples}</p>
+            </div>
+          );
+        })}
+      </div>
+      <p>{branchTargetWhy}</p>
+
+      <h4 className="mt-8 font-semibold tracking-tight">
+        <LabelChip name="release-gate" color="b60205" /> — the rung between closed and released
+      </h4>
+      <p>{releaseGateRationale}</p>
+    </Disclosure>
   );
 }
 
 function ExperimentsSection() {
   return (
-    <Section id="experiments" title="Experiments never ride the spine">
+    <Disclosure
+      id="experiments"
+      title="Experiments stay off the schedule"
+      teaser="A spike produces a decision, not something a user installs — so it never goes into a release, and a release never depends on how one turns out."
+    >
       <p>
-        A milestone ships features, fixes, and perf work — things that produce a binary a user
-        installs. An <Code>experiment</Code> is a spike to <em>measure</em>; its deliverable is a{" "}
-        <em>decision</em>, not a shippable artifact. So it runs off-spine, always.
+        A release ships features, fixes, and performance work — things that turn into a binary
+        somebody installs. An <Code>experiment</Code> is a spike to measure something, and what
+        it delivers is a decision. So it runs alongside the release schedule, never inside it.
       </p>
 
       <ul className="mt-5 space-y-2">
         {experimentRules.map((r) => (
           <li key={r} className="flex gap-2.5">
             <ArrowRight aria-hidden className="mt-1 size-3.5 shrink-0 text-primary" />
-            <span>{r}</span>
+            <span className="text-sm leading-relaxed text-foreground/90">{r}</span>
           </li>
         ))}
       </ul>
 
-      <Callout tone="primary" title="The discipline test">
+      <Callout tone="primary" title="How to tell which one you have">
         <p>{experimentTest}</p>
       </Callout>
-    </Section>
+    </Disclosure>
   );
 }
 
 function SurfacesSection() {
   return (
-    <Section id="surfaces" title="Surfaces — the delivery axis">
+    <Disclosure
+      id="surfaces"
+      title="When a repo ships more than one thing"
+      teaser="A core library, an editor extension, and a website all release on different schedules. Labels keep them from contaminating each other's roadmaps."
+    >
       <p>
-        A <strong>surface</strong> is a distinct, independently shippable face of the product — core
-        library, IDE extension, marketing site — one that may have its own release cadence and tag
-        namespace. Modeled as labels, and only when a repo ships more than one artifact; a
-        single-artifact repo has one implicit surface and needs no labels at all.
+        A <strong>surface</strong> is one independently shippable face of the product — the core
+        library, the editor extension, the marketing site — each with its own release cadence and
+        its own tags. They&apos;re labels, and you only need them if the repo ships more than one
+        thing. A single-artifact repo has one implicit surface and needs no labels at all.
       </p>
 
-      <div className="not-prose mt-6 space-y-3">
+      <div className="mt-6 space-y-3">
         {surfaces.map((s) => (
           <div key={s.label} className="flex flex-col gap-1.5 sm:flex-row sm:gap-4">
             <div className="shrink-0 sm:w-52">
@@ -368,27 +502,31 @@ function SurfacesSection() {
         ))}
       </div>
 
-      <Callout tone="danger" title="The surface-exclusion rule (load-bearing)">
+      <Callout tone="danger" title="The one rule that matters here">
         <p>{surfaceExclusionRule}</p>
       </Callout>
 
-      <p className="mt-6 text-sm leading-relaxed text-muted-foreground">{surfaceNaming}</p>
-    </Section>
+      <p className="text-sm text-muted-foreground">{surfaceNaming}</p>
+    </Disclosure>
   );
 }
 
 function EpicsSection() {
   return (
-    <Section id="epics" title="Epics & the derived roadmap">
+    <Disclosure
+      id="epics"
+      title="Big work, and the roadmap"
+      teaser="Epics break down through real sub-issues and may span several releases. The roadmap is computed from that structure rather than written by hand."
+    >
       <p>
-        An <Code>epic</Code> is an umbrella issue and a top-level container that{" "}
-        <em>may span releases</em>{" "}— don&apos;t force it to be atomic. Its children ship incrementally, each
-        carrying its own milestone, and they&apos;re linked as GitHub <strong>native
-        sub-issues</strong> so the progress bar rolls them up automatically. Not task-list
-        checkboxes, which drift. Not a Project field, which is a second axis.
+        An <Code>epic</Code> is an umbrella issue, and it&apos;s allowed to span several releases
+        — don&apos;t force it to be small. Its children ship one at a time, each carrying its own
+        milestone, and they&apos;re linked as real GitHub sub-issues so the progress bar rolls up
+        on its own. Not checkboxes in the description, which drift. Not a custom field, which
+        would be a third way of organizing work.
       </p>
 
-      <div className="not-prose mt-6 divide-y divide-border/60 rounded-xl border border-border/60">
+      <div className="mt-6 divide-y divide-border/60 rounded-xl border border-border/60">
         {epicBodyShape.map((part, i) => (
           <div key={part.heading} className="flex gap-4 p-4">
             <span className="shrink-0 font-mono text-xs text-muted-foreground">{i + 1}</span>
@@ -400,59 +538,60 @@ function EpicsSection() {
         ))}
       </div>
 
-      <h3 className="mt-10 text-lg font-semibold tracking-tight">The roadmap is derived</h3>
-      <p className="mt-2">
-        A <Code>/roadmap</Code> page is computed from the two axes plus the sub-issue structure,
-        never maintained by hand. Because of the invariants, every forward bucket is a one-line
-        filter:
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">The roadmap is computed</h3>
+      <p>
+        A <Code>/roadmap</Code> page is generated from the two axes plus the sub-issue structure,
+        never maintained by hand. Because of the label rules, every bucket is a single filter:
       </p>
 
-      <div className="not-prose mt-5 overflow-x-auto">
+      <div className="mt-5 overflow-x-auto">
         <table className="w-full min-w-md border-collapse text-sm">
           <thead>
             <tr className="border-b border-border">
               <th className="py-2 pr-4 text-left font-medium">Bucket</th>
-              <th className="py-2 text-left font-medium">Derivation</th>
+              <th className="py-2 text-left font-medium">Which issues land in it</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60">
             {roadmapBuckets.map((b) => (
               <tr key={b.bucket}>
                 <td className="py-2.5 pr-4 align-top font-medium whitespace-nowrap">{b.bucket}</td>
-                <td className="py-2.5 align-top font-mono text-xs text-muted-foreground">
-                  {b.derivation}
-                </td>
+                <td className="py-2.5 align-top text-muted-foreground">{b.derivation}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-    </Section>
+    </Disclosure>
   );
 }
 
 function GatesSection() {
   return (
-    <Section id="gates" title="Design → plan → spec">
-      <blockquote className="not-prose rounded-xl border border-primary/30 bg-primary/[0.06] p-5">
+    <Disclosure
+      id="gates"
+      title="Design, then plan, then tests"
+      teaser="Nothing gets coded until a design note and an implementation plan exist, in that order — and the tests get written before the code that passes them."
+    >
+      <blockquote className="rounded-xl border border-primary/30 bg-primary/[0.06] p-5">
         <p className="leading-relaxed text-foreground/90">
-          Nothing gets coded until two artifacts exist, in series: a <em>design-doc</em>, then an{" "}
-          <em>implementation-plan</em>. Both live as issues, never as committed files.
+          Nothing gets coded until two things exist, in this order: a design note, then an
+          implementation plan. Both live as issues, never as files committed to the repo.
         </p>
       </blockquote>
 
-      <p className="mt-6">
-        Design and planning are two distinct deliverables. Doing them in series <em>before</em>{" "}
-        any code is what surfaces gotchas while they&apos;re still cheap.
+      <p>
+        Designing and planning are separate jobs. Doing them one after the other, before any code,
+        is what surfaces the problems while they&apos;re still cheap to fix.
       </p>
 
-      <div className="not-prose mt-6 space-y-4">
+      <div className="mt-6 space-y-4">
         {gates.map((g) => (
           <div key={g.number} className="rounded-xl border border-border/60 bg-card/40 p-5">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-mono text-xs text-primary">Gate {g.number}</span>
+              <span className="font-mono text-xs text-primary">Step {g.number}</span>
               <h3 className="font-semibold tracking-tight">{g.name}</h3>
-              <span className="font-mono text-xs text-muted-foreground">{g.question}</span>
+              <span className="text-xs text-muted-foreground">{g.question}</span>
               <span className="ml-auto rounded-full border border-border/60 px-2 py-0.5 text-[11px] text-muted-foreground">
                 {g.artifact}
               </span>
@@ -465,27 +604,36 @@ function GatesSection() {
         ))}
       </div>
 
-      <p className="mt-6">{gatesRationale}</p>
+      <p>{gatesRationale}</p>
 
-      <Callout tone="primary" title="State is derived, not stickered">
+      <Callout tone="primary" title="You never label the status — you look">
         <p>{derivedStateRule}</p>
       </Callout>
 
-      <p className="mt-6">
-        Where design lives: the design-doc <em>is</em> the <Code>rfc</Code> issue — never a
-        committed <Code>proposal-*.md</Code>. The only design docs in the tree are durable
-        architecture references for <em>shipped</em> features. When a feature ships, fold its
-        durable design into <Code>ARCHITECTURE.md</Code> and close the RFC.
-      </p>
-    </Section>
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">Where the writing lives</h3>
+      <p>{whereDesignLives}</p>
+
+      <div className="mt-5 space-y-3">
+        {docsDiscipline.map((d) => (
+          <div key={d.name} className="flex flex-col gap-1.5 sm:flex-row sm:gap-4">
+            <code className="shrink-0 font-mono text-sm text-primary sm:w-48">{d.name}</code>
+            <p className="text-sm leading-relaxed text-muted-foreground">{d.role}</p>
+          </div>
+        ))}
+      </div>
+    </Disclosure>
   );
 }
 
-function DisciplinesSection() {
+function PracticeSection() {
   return (
-    <Section id="disciplines" title="Operating disciplines">
-      <p>Standing rules that keep Issues the single, always-current source of truth.</p>
-      <div className="not-prose mt-6 space-y-4">
+    <Disclosure
+      id="practice"
+      title="Day-to-day"
+      teaser="The standing habits that keep the issues current — and what the project board is actually allowed to do."
+    >
+      <p>These are the rules that keep the issues worth trusting.</p>
+      <div className="mt-6 space-y-4">
         {disciplines.map((d) => (
           <div key={d.title}>
             <p className="text-sm font-medium">{d.title}</p>
@@ -493,15 +641,45 @@ function DisciplinesSection() {
           </div>
         ))}
       </div>
-    </Section>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">The board is just saved searches</h3>
+      <p>
+        Its entire job is to give you the views below. Because of the label rules, each one is a
+        trivial filter rather than a query you have to think about.
+      </p>
+
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full min-w-md border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="py-2 pr-4 text-left font-medium">View</th>
+              <th className="py-2 text-left font-medium">What it answers</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/60">
+            {boardViews.map((v) => (
+              <tr key={v.view}>
+                <td className="py-2.5 pr-4 align-top font-medium whitespace-nowrap">{v.view}</td>
+                <td className="py-2.5 align-top text-muted-foreground">{v.shows}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="text-sm text-muted-foreground">{boardViewsNote}</p>
+    </Disclosure>
   );
 }
 
-function AntiPatternsSection() {
+function MistakesSection() {
   return (
-    <Section id="anti-patterns" title="Anti-patterns it prevents">
-      <p>Every rule above exists because one of these bit me first.</p>
-      <div className="not-prose mt-6 space-y-3">
+    <Disclosure
+      id="mistakes"
+      title="Mistakes this prevents"
+      teaser="Every rule above exists because one of these bit me first. If you only read one section, read this one."
+    >
+      <div className="space-y-3">
         {antiPatterns.map((a) => (
           <div key={a.pattern} className="flex gap-3">
             <Ban aria-hidden className="mt-0.5 size-4 shrink-0 text-destructive/70" />
@@ -514,19 +692,23 @@ function AntiPatternsSection() {
           </div>
         ))}
       </div>
-    </Section>
+    </Disclosure>
   );
 }
 
 function AdoptSection() {
   return (
-    <Section id="adopt" title="Adopt it">
+    <Disclosure
+      id="adopt"
+      title="Set it up in your repo"
+      teaser="One script provisions the labels, milestones, and board views. Then nine steps, most of which you can skip."
+    >
       <p>
-        The repo ships an idempotent Bun script that provisions the labels (with their
-        descriptions), the starter milestones, and the scriptable filtered views:
+        The repo ships a script you can re-run safely. It creates the labels with their
+        descriptions, the starter milestones, and the filtered board views:
       </p>
 
-      <div className="not-prose mt-5 overflow-x-auto rounded-xl border border-border/60 bg-muted/30 p-4">
+      <div className="mt-5 overflow-x-auto rounded-xl border border-border/60 bg-muted/30 p-4">
         <pre className="font-mono text-xs leading-relaxed text-foreground/90">
           <code>{quickStart}</code>
         </pre>
@@ -534,14 +716,14 @@ function AdoptSection() {
 
       <ol className="mt-6 list-decimal space-y-2 pl-5 marker:font-mono marker:text-xs marker:text-muted-foreground">
         {adoptionSteps.map((s) => (
-          <li key={s} className="pl-1">
+          <li key={s} className="pl-1 text-sm leading-relaxed text-foreground/90">
             {s}
           </li>
         ))}
       </ol>
 
       <h3 className="mt-10 text-lg font-semibold tracking-tight">The issue templates</h3>
-      <div className="not-prose mt-4 space-y-3">
+      <div className="mt-4 space-y-3">
         {issueTemplates.map((t) => (
           <div key={t.name} className="flex flex-col gap-1.5 sm:flex-row sm:gap-4">
             <code className="shrink-0 font-mono text-sm text-primary sm:w-52">{t.name}</code>
@@ -550,7 +732,7 @@ function AdoptSection() {
         ))}
       </div>
 
-      <div className="not-prose mt-8 flex flex-wrap items-center gap-2">
+      <div className="mt-8 flex flex-wrap items-center gap-2">
         <Button asChild size="sm">
           <a href={PLAYBOOK_REPO} target="_blank" rel="noreferrer noopener">
             <GitHubIcon /> ai-pm-playbook
@@ -567,38 +749,13 @@ function AdoptSection() {
           </a>
         </Button>
       </div>
-    </Section>
+    </Disclosure>
   );
 }
 
 // ────────────────────────────────────────────────────────────────────────────
 // Primitives
 // ────────────────────────────────────────────────────────────────────────────
-
-/**
- * A page section. `scroll-mt` clears the sticky header so TOC anchors don't
- * land under it; paragraphs get their rhythm here rather than via a prose class,
- * so `not-prose` blocks opt out of the spacing without fighting typography.
- */
-function Section({
-  id,
-  title,
-  children,
-}: {
-  id: string;
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <section
-      id={id}
-      className="scroll-mt-20 [&>p]:mt-4 [&>p]:leading-relaxed [&>p]:text-foreground/90"
-    >
-      <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-      {children}
-    </section>
-  );
-}
 
 /** A GitHub-style label chip, tinted by the label's real hex color. */
 function LabelChip({ name, color }: { name: string; color: string }) {
