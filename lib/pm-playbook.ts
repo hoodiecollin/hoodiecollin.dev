@@ -348,6 +348,54 @@ export const branchTargets: BranchTarget[] = [
 export const branchTargetWhy =
   "Get this backwards and you publish documentation for a feature that doesn't exist yet — which is worse than having no page at all. It generates support load, and it makes your docs a liar at the exact moment someone is trusting them.";
 
+// §5.3 — one integration branch, never one per version
+export const oneBranchRule =
+  "Once you have an integration branch, the obvious next thought is a second one — v0.5-develop sitting alongside v0.4-develop, so next-cycle work has somewhere to go. Don't. There is exactly one integration branch, and its name never contains a version.";
+
+export const oneBranchReasons: { heading: string; why: string }[] = [
+  {
+    heading: "The registry has one version line, so only one cycle can be measured",
+    why: "The publish gap is defined against what's currently published, and npm, crates.io, PyPI, a container tag — all of them are a single global namespace. Two branches carrying unpublished changes can't both be checked: whichever publishes first quietly redefines the other one's gap.",
+  },
+  {
+    heading: "A version in the branch name writes the schedule down twice",
+    why: "This one applies even if you publish nothing. The milestone already says when something ships. Putting the version in a branch name says it again somewhere harder to query and harder to correct, and the two copies will eventually disagree — the same second-source-of-truth problem, now with merge conflicts.",
+  },
+];
+
+export const oneBranchPayoff =
+  "Keep the name version-free and the branch advances itself. develop just means “the cycle in flight,” so the moment you tag a release it becomes the next cycle — no rename, no new branch, no workflow to edit.";
+
+/** How next-cycle work is kept off the integration branch (the PM008 rule). */
+export const cycleScopeRule =
+  "A pull request targeting the integration branch may not close an issue milestoned later than the cycle in flight.";
+
+export const cycleScopeShape =
+  "Note the shape: it forbids future milestones rather than requiring the current one. That's what makes it usable without exceptions — untracked chores, CI fixes, and typo pull requests all pass, and they should, because work with no issue can't be next-cycle work. Next-cycle work is defined by carrying that milestone, so the milestone is the only thing the rule can fire on.";
+
+export const cycleDerivation =
+  "Never configure which cycle is in flight — derive it. It's the lowest open milestone by version order, so there's no constant to keep updated and nothing that can drift from the actual schedule. That has one prerequisite worth stating because it's easy to skip: closing the milestone has to be part of the release ritual, right next to publishing and tagging. Leave one open after its tag and the check freezes there and starts blocking legitimate next-cycle work — loudly, which is the right way for it to fail.";
+
+export const nextCycleWork =
+  "So where does next-cycle work live in the meantime? On its own branch off the integration branch, unmerged, carrying its real milestone. Rebase after the release merge and it lands normally. That's cheaper than a second integration branch, where you'd pay to forward-port every fix continuously instead of merging once at the end.";
+
+export interface LongLivedBranch {
+  name: string;
+  when: string;
+}
+
+/** The two second long-lived branches that are legitimate — neither is a second release line. */
+export const longLivedBranches: LongLivedBranch[] = [
+  {
+    name: "A maintenance line cut from a tag",
+    when: "release/v0.4.x, when a patch is needed after the cycle has moved on. It branches backward off released state, so it carries no publish gap at all. Cut it when a patch actually comes up, not in advance.",
+  },
+  {
+    name: "A track that can't merge into the current cycle",
+    when: "A format break, a major rewrite. Name it for the work — format-v2 — and never for a version, precisely so nobody mistakes it for a release line.",
+  },
+];
+
 export const releaseGateRationale =
   "The ladder ends closed → released. The work that lives in that gap isn't feature work: publishing the packages, reconciling a version number, running the clean-room check, rotating a credential before it expires. Filed as ordinary tech-debt it looks like something you could put off, which is precisely backwards. The release-gate label names it, so “are we ready to ship?” is a search instead of a memory and the tag workflow has something mechanical to check. File one the moment you knowingly defer a release obligation — that's exactly when it's most likely to be forgotten, because everything still works on your machine.";
 
@@ -622,6 +670,11 @@ export const antiPatterns: AntiPattern[] = [
     pattern: "Docs that ship ahead of the feature they document",
     consequence:
       "Documentation for unreleased behavior belongs on the integration branch with the feature, not merged early because “it's only docs.”",
+  },
+  {
+    pattern: "An integration branch with a version in its name — or one per upcoming version",
+    consequence:
+      "The publish gap is measured against a single registry, so only one cycle can be in flight; and a version in the branch name records the schedule a second time, competing with the milestone that already says it.",
   },
   {
     pattern: "A release obligation filed as ordinary tech-debt",

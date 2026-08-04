@@ -21,6 +21,9 @@ import {
   branchQuestion,
   branchTargetWhy,
   branchTargets,
+  cycleDerivation,
+  cycleScopeRule,
+  cycleScopeShape,
   derivedStateRule,
   disciplines,
   docsDiscipline,
@@ -38,8 +41,13 @@ import {
   labelsAreTheProcess,
   ladder,
   ladderPayoff,
+  longLivedBranches,
   milestoneBoilerplate,
   milestoneRules,
+  nextCycleWork,
+  oneBranchPayoff,
+  oneBranchReasons,
+  oneBranchRule,
   playbookSections,
   publishGap,
   publishGapApplies,
@@ -337,7 +345,7 @@ function ReleasesSection() {
     <Disclosure
       id="releases"
       title="Shipping, and what blocks it"
-      teaser="What a milestone is, why closed isn't shipped, and the failure mode where every test passes but nobody can install what you built."
+      teaser="What a milestone is, why closed isn't shipped, the failure mode where every test passes but nobody can install what you built, and how many long-lived branches you actually need."
     >
       <ul className="space-y-2">
         {milestoneRules.map((r) => (
@@ -444,6 +452,49 @@ function ReleasesSection() {
         <LabelChip name="release-gate" color="b60205" /> — the rung between closed and released
       </h4>
       <p>{releaseGateRationale}</p>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">
+        One integration branch, never one per version
+      </h3>
+      <p>{oneBranchRule}</p>
+
+      <div className="mt-5 space-y-3">
+        {oneBranchReasons.map((r) => (
+          <div key={r.heading} className="rounded-xl border border-border/60 bg-card/40 p-4">
+            <p className="text-sm font-medium text-primary">{r.heading}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{r.why}</p>
+          </div>
+        ))}
+      </div>
+
+      <p>{oneBranchPayoff}</p>
+
+      <h4 className="mt-8 font-semibold tracking-tight">
+        Keeping next-cycle work off that branch
+      </h4>
+      <p>
+        The check reads the milestone rather than the branch name — the schedule already lives on
+        the issue, so there&apos;s no reason to write it down again:
+      </p>
+      <p className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm font-medium">
+        {cycleScopeRule}
+      </p>
+      <p>{cycleScopeShape}</p>
+      <p>{cycleDerivation}</p>
+      <p>{nextCycleWork}</p>
+
+      <h4 className="mt-8 font-semibold tracking-tight">
+        The two long-lived branches that are fine
+      </h4>
+      <p>Neither of these is a second release line, which is why they don&apos;t break the rule.</p>
+      <div className="mt-4 space-y-3">
+        {longLivedBranches.map((b) => (
+          <div key={b.name} className="rounded-xl border border-border/60 bg-card/40 p-4">
+            <p className="text-sm font-medium">{b.name}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{b.when}</p>
+          </div>
+        ))}
+      </div>
     </Disclosure>
   );
 }
