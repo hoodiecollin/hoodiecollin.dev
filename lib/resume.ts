@@ -48,18 +48,38 @@ export interface ResumeProject {
   href?: string;
   /** Dedicated project website, if it has one (e.g. forgedb.dev). */
   website?: string;
-  /** Path (under /public) to a brand mark shown on the home-page card. */
+  /** Path (under /public) to a brand mark shown on the project cards. */
   logo?: string;
   /** Internal route for a project that has a dedicated page on this site. */
   page?: string;
   /**
    * Show this project on the site but keep it off the résumé. `resolveResume`
    * filters these out, so /resume, the public PDF, and every private slant drop
-   * them together; the home page reads `siteProjects` and still shows them.
+   * them together; the site reads `siteProjects` and still shows them.
    */
   omitFromResume?: boolean;
-  /** Highlight this project with a prominent card on the home page. */
+  /** Highlight this project with a prominent card on the home and /projects pages. */
   featured?: boolean;
+  /**
+   * Site-only. Stack/topic chips rendered on /projects. The résumé never reads
+   * these — a one-page PDF has no room for chips, and every term worth listing
+   * there is already in the skills block.
+   */
+  tags?: string[];
+  /**
+   * Site-only. A longer note — why it exists, what it took — rendered under the
+   * description on /projects when present. `description` stays the one-paragraph
+   * version the résumé and the cards use.
+   */
+  detail?: string;
+}
+
+/** Anchor id for a project's card on /projects, e.g. "typescript-to-rust (ttr)" → "typescript-to-rust-ttr". */
+export function projectSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 export interface ResumeSkillGroup {
@@ -182,6 +202,7 @@ const base = {
       website: "https://forgedb.dev",
       logo: "/projects/forgedb.svg",
       featured: true,
+      tags: ["Rust", "TypeScript", "Code generation", "Columnar storage", "OpenAPI 3.1"],
     },
     {
       name: "typescript-to-rust (ttr)",
@@ -190,6 +211,7 @@ const base = {
         "Language-level translator that compiles a strict TypeScript dialect into idiomatic Rust with true ownership semantics (borrows vs. owned values, &self / &mut self methods), with output verified by a real cargo toolchain rather than string matching.",
       href: "https://github.com/HoodieCollin/typescript-to-rust",
       logo: "/projects/typescript-to-rust.svg",
+      tags: ["TypeScript", "Rust", "Compilers", "Ownership semantics"],
     },
     {
       name: "Optigon",
@@ -198,6 +220,7 @@ const base = {
         "Packages several interchangeable implementations of an operation (sorting, dictionary lookup, more to come) behind one interface, then learns per workload which is fastest via regret-scored adaptive dispatch. One Rust core, shipped as native addons to TypeScript (Node + Bun) and Python.",
       href: "https://github.com/hoodiecollin/optigon",
       logo: "/projects/optigon.svg",
+      tags: ["Rust", "TypeScript", "Python", "Native addons", "Adaptive dispatch"],
     },
     {
       name: "AI Project-Management Playbook",
@@ -207,6 +230,7 @@ const base = {
       href: "https://github.com/hoodiecollin/ai-pm-playbook",
       page: "/ai-pm-playbook/",
       omitFromResume: true,
+      tags: ["Methodology", "GitHub Projects", "Bun", "Issue templates"],
     },
     {
       name: "checked-rs",
@@ -214,6 +238,7 @@ const base = {
       description:
         "Rust library that encodes arbitrary validation logic into the type system, with a proc-macro that generates specialized, self-validating integer types.",
       href: "https://github.com/HoodieCollin/checked-rs",
+      tags: ["Rust", "Proc macros", "Type-level validation"],
     },
     {
       name: "use-quantum-state",
@@ -221,6 +246,7 @@ const base = {
       description:
         "TypeScript / React library for fine-grained cross-component state: subscribers update without replacing the provider's value, so only components bound to a changed property rerender — cutting render cycles in high-frequency UI such as large tables.",
       href: "https://github.com/HoodieCollin/use-quantum-state",
+      tags: ["TypeScript", "React", "Fine-grained reactivity"],
     },
   ] satisfies ResumeProject[],
 
