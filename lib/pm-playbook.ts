@@ -22,8 +22,11 @@
 
 export const PLAYBOOK_REPO = "https://github.com/hoodiecollin/ai-pm-playbook";
 export const PLAYBOOK_DOC = `${PLAYBOOK_REPO}/blob/main/PLAYBOOK.md`;
-export const PLAYBOOK_BOOTSTRAP = `${PLAYBOOK_REPO}/blob/main/scripts/bootstrap-pm.ts`;
 export const PLAYBOOK_TEMPLATES = `${PLAYBOOK_REPO}/tree/main/.github/ISSUE_TEMPLATE`;
+
+/** The published package — the CLI, the linter, and the vendored doctrine all ship from here. */
+export const PLAYBOOK_PACKAGE = "@hoodiecollin/pm-playbook";
+export const PLAYBOOK_NPM = `https://www.npmjs.com/package/${PLAYBOOK_PACKAGE}`;
 
 /** A page section — drives the sticky TOC and the search-index headings. */
 export interface PlaybookSection {
@@ -213,7 +216,7 @@ export const labels: PlaybookLabel[] = [
 ];
 
 export const labelsAreTheProcess =
-  "Each label's description on GitHub is the rule it enforces, written out — so the process is visible in the label picker rather than in a document nobody opens. The setup script writes these for you.";
+  "Each label's description on GitHub is the rule it enforces, written out — so the process is visible in the label picker rather than in a document nobody opens. The setup command writes these for you.";
 
 export interface LabelInvariant {
   /** The rule, in plain language. */
@@ -692,20 +695,31 @@ export const antiPatterns: AntiPattern[] = [
 // ────────────────────────────────────────────────────────────────────────────
 
 export const adoptionSteps: string[] = [
-  "Run the bootstrap script. It creates the labels with their descriptions, the starter milestones, and the filtered board views.",
+  "Run init. It copies the rules into your repo, adds the issue templates, and wires your agent instruction files. Commit what it writes — agents read it out of the repo, so it can't be gitignored.",
+  "Run bootstrap to provision GitHub: the labels with their descriptions, a starter milestone, and the filtered board views. It's safe to re-run.",
   "Set the group-by on the release-spine, surface, and execution boards by hand — grouping is the one thing the API won't do.",
   "Migrating an existing board? Delete the priority, size, and workstream fields, and every view that filtered or grouped by them.",
-  "Copy the issue templates into the repo.",
   "Define your surface labels — but only if the repo ships more than one thing.",
   "Seed the two roadmap docs, and write the model into CONTRIBUTING.md.",
   "If your project publishes packages its own output depends on, decide now whether you publish as you go or keep the gap off your main branch. Write down the answer and which branch a pull request should target, and make the clean-room check required on the default branch. If you publish nothing, skip this.",
-  "Backfill: put the existing backlog on the ladder, assign milestones, and enforce the rules. A plan-next sitting next to a milestone is the number one sign of drift.",
+  "Backfill: put the existing backlog on the ladder, assign milestones, and enforce the rules. A plan-next sitting next to a milestone is the number one sign of drift — check --all-states finds every violation at once.",
   "Convert epic checklists into real sub-issues.",
+  "Wire the checks into CI, so the rules outlive whoever set them up: lint on pull requests, the release check before a tag, and the scope check on anything targeting the integration branch.",
 ];
 
-export const quickStart = `bun install
-bun run bootstrap --repo <owner>/<name> --project <N> \\
-  --surfaces "core,ide-extension,website" --milestone v0.1.0`;
+export const quickStart = `npx @hoodiecollin/pm-playbook init
+npx @hoodiecollin/pm-playbook bootstrap \\
+  --repo <owner>/<name> --project <N> \\
+  --surfaces "core,ide-extension,website"`;
+
+export const ciSnippet = `# on pull requests — lint the backlog
+- run: npx @hoodiecollin/pm-playbook check --repo \${{ github.repository }}
+
+# before a tag — "can we actually release this?"
+- run: npx @hoodiecollin/pm-playbook release-check \${{ github.ref_name }}
+
+# on pull requests into the integration branch — keep next-cycle work out
+- run: npx @hoodiecollin/pm-playbook scope-check \${{ github.event.pull_request.number }}`;
 
 /** The four reusable issue templates the repo ships. */
 export const issueTemplates: { name: string; purpose: string }[] = [

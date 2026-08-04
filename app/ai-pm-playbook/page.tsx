@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Ban, Check, FileCode2, Quote, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Ban, Check, FileCode2, Package, Quote, X } from "lucide-react";
 import { cn, container } from "@/lib/utils";
 import { GitHubIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Disclosure, ExpandAll } from "@/components/disclosure";
 import {
-  PLAYBOOK_BOOTSTRAP,
   PLAYBOOK_DOC,
+  PLAYBOOK_NPM,
+  PLAYBOOK_PACKAGE,
   PLAYBOOK_REPO,
   PLAYBOOK_TEMPLATES,
   adoptionSteps,
@@ -21,6 +22,7 @@ import {
   branchQuestion,
   branchTargetWhy,
   branchTargets,
+  ciSnippet,
   cycleDerivation,
   cycleScopeRule,
   cycleScopeShape,
@@ -752,18 +754,15 @@ function AdoptSection() {
     <Disclosure
       id="adopt"
       title="Set it up in your repo"
-      teaser="One script provisions the labels, milestones, and board views. Then nine steps, most of which you can skip."
+      teaser="Two commands get you the rules in the repo and the labels on GitHub. Then a checklist, most of which you can skip."
     >
       <p>
-        The repo ships a script you can re-run safely. It creates the labels with their
-        descriptions, the starter milestones, and the filtered board views:
+        The first command is local — it copies the rules into your repo and wires up your agent
+        instruction files. The second provisions GitHub: the labels with their descriptions, a
+        starter milestone, and the filtered board views. Both are safe to re-run.
       </p>
 
-      <div className="mt-5 overflow-x-auto rounded-xl border border-border/60 bg-muted/30 p-4">
-        <pre className="font-mono text-xs leading-relaxed text-foreground/90">
-          <code>{quickStart}</code>
-        </pre>
-      </div>
+      <CodeBlock>{quickStart}</CodeBlock>
 
       <ol className="mt-6 list-decimal space-y-2 pl-5 marker:font-mono marker:text-xs marker:text-muted-foreground">
         {adoptionSteps.map((s) => (
@@ -772,6 +771,13 @@ function AdoptSection() {
           </li>
         ))}
       </ol>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">Wiring it into CI</h3>
+      <p>
+        This is the step that makes the rules stick — everything above is a convention until
+        something exits non-zero.
+      </p>
+      <CodeBlock>{ciSnippet}</CodeBlock>
 
       <h3 className="mt-10 text-lg font-semibold tracking-tight">The issue templates</h3>
       <div className="mt-4 space-y-3">
@@ -790,8 +796,8 @@ function AdoptSection() {
           </a>
         </Button>
         <Button asChild size="sm" variant="outline">
-          <a href={PLAYBOOK_BOOTSTRAP} target="_blank" rel="noreferrer noopener">
-            bootstrap-pm.ts
+          <a href={PLAYBOOK_NPM} target="_blank" rel="noreferrer noopener">
+            <Package /> {PLAYBOOK_PACKAGE}
           </a>
         </Button>
         <Button asChild size="sm" variant="outline">
@@ -822,6 +828,20 @@ function LabelChip({ name, color }: { name: string; color: string }) {
     >
       {name}
     </span>
+  );
+}
+
+/**
+ * A shell / config snippet. Scrolls sideways rather than wrapping, since a
+ * wrapped command line reads as two commands.
+ */
+function CodeBlock({ children }: { children: string }) {
+  return (
+    <div className="mt-5 overflow-x-auto rounded-xl border border-border/60 bg-muted/30 p-4">
+      <pre className="font-mono text-xs leading-relaxed text-foreground/90">
+        <code>{children}</code>
+      </pre>
+    </div>
   );
 }
 
