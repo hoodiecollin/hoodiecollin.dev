@@ -226,11 +226,11 @@ const base = {
       name: "AI Project-Management Playbook",
       year: "2026",
       description:
-        "A portable GitHub project-management methodology organized by exactly two axes — milestone and labels — so a project's state stays derivable from the code instead of asserted by a board that drifts. Ships an idempotent Bun bootstrap script and issue templates.",
+        "A portable GitHub project-management methodology organized by exactly two axes — milestone and labels — so a project's state stays derivable from the code instead of asserted by a board that drifts. Published as @hoodiecollin/pm-playbook: it vendors the rules into a repo for coding agents to read, and ships a linter that enforces them in CI, plus a Claude Code plugin that blocks violations before they land.",
       href: "https://github.com/hoodiecollin/ai-pm-playbook",
       page: "/ai-pm-playbook/",
       omitFromResume: true,
-      tags: ["Methodology", "GitHub Projects", "Bun", "Issue templates"],
+      tags: ["Methodology", "GitHub Projects", "npm package", "Linter", "Claude Code plugin"],
     },
     {
       name: "checked-rs",
