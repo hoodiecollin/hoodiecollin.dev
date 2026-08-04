@@ -9,12 +9,19 @@
  * reader who has never seen the model.
  *
  * The repo is the source of truth for the *rules*. When PLAYBOOK.md changes,
- * update this file. Two things here are verbatim rather than paraphrased and
- * must stay that way:
- *   - `labels[].description` — these are the real GitHub label descriptions
- *     written by scripts/bootstrap-pm.ts. Rewording them here would make the
- *     page describe labels that don't match the ones you'd actually get.
+ * update this file. A few things here are verbatim rather than paraphrased and
+ * must stay that way, because they name something a reader will type or see:
+ *   - `labels[].description` — the real GitHub label descriptions, written by
+ *     the package's `bootstrap` command (src/lib/model.ts). Rewording them here
+ *     would make the page describe labels that don't match what you'd get.
  *   - `milestoneBoilerplate` — meant to be copy-pasted into milestone bodies.
+ *   - `rules[].id`, `cliCommands[].command`, `quickStart`, `ciSnippet`,
+ *     `pluginInstall` — identifiers and commands that have to match the shipped
+ *     CLI, or the page is telling people to run things that don't exist.
+ *
+ * The playbook is now a published package (`@hoodiecollin/pm-playbook`) whose
+ * linter executes the same invariants this page describes, so the rule IDs and
+ * the prose have to agree in both directions.
  *
  * Keep `playbookSections` in sync with the headings the page renders, since
  * both the sticky TOC and the ⌘K search entry derive from it.
@@ -46,6 +53,7 @@ export const playbookSections: PlaybookSection[] = [
   { id: "gates", title: "Design, then plan, then tests" },
   { id: "practice", title: "Day-to-day" },
   { id: "mistakes", title: "Mistakes this prevents" },
+  { id: "enforcement", title: "Written down, then enforced" },
   { id: "adopt", title: "Set it up in your repo" },
 ];
 
@@ -60,6 +68,7 @@ export const tldr: string[] = [
   "A short list of rules about which labels can coexist turns every question — what have we committed to? what's scheduled? can we ship? — into a one-line search.",
   "Nothing gets built until a design note exists and then an implementation plan, in that order. The tests get written before the code.",
   "The code is the only thing that's actually true. Every doc, card, and label is a claim about it, and a claim that disagrees with the code is wrong.",
+  "Those rules are simple enough to check mechanically, so it ships as a command that fails your build when the backlog breaks one — not just as a document you hope people read.",
 ];
 
 /** Why the constraints are this severe — the one bit of rationale that earns its place up top. */
@@ -689,6 +698,188 @@ export const antiPatterns: AntiPattern[] = [
     consequence: "State the limits in writing and let the code have the final word.",
   },
 ];
+
+// ────────────────────────────────────────────────────────────────────────────
+// The package — vendored doctrine, the linter, and the Claude Code plugin
+// ────────────────────────────────────────────────────────────────────────────
+
+export const enforcementWhy =
+  "Written down, this is prose in a context window — which is to say a suggestion. The rules above are already yes-or-no questions about labels and milestones, so they can be run instead of read. That turns them into a command that exits non-zero, and an agent corrects itself against a failing check far more reliably than against a paragraph it only half-loaded.";
+
+export interface PayloadRoute {
+  payload: string;
+  consumer: string;
+  ships: string;
+}
+
+/** Two payloads with genuinely different delivery mechanics — the reason this isn't a normal dependency. */
+export const payloadRoutes: PayloadRoute[] = [
+  {
+    payload: "The rules themselves",
+    consumer: "Your agent's context window",
+    ships: "Copied into your repo under .pm-playbook/ and committed, stamped with a version.",
+  },
+  {
+    payload: "The setup command and the linter",
+    consumer: "Your GitHub and your CI",
+    ships: "An ordinary npx binary.",
+  },
+];
+
+export const vendoringWhy =
+  "The rules get copied into your repo rather than read out of node_modules, and that's deliberate: cloud agents, CI containers, and review sandboxes routinely have no node_modules at all; a committed file shows up in a pull request diff, so a change to the rules gets reviewed like anything else; and every agent harness can read a file in the repo, while none of them reliably resolve a package path mentioned in prose.";
+
+export const vendoringDrift =
+  "Copying costs you drift, so it's paid for with a manifest — the package version plus a hash of every file. The linter compares them and tells you to re-run setup when they've diverged. It's the lockfile idea applied to prose.";
+
+export const agentStanza =
+  "What lands in AGENTS.md is about twenty lines: a pointer to the vendored copy plus the label rules, never the whole doctrine. Always-loaded context is the scarcest thing in a repo, and spending hundreds of lines of it on project management would make the agent worse at everything else. The short stanza buys you the rest on demand. Setup can also write CLAUDE.md, .cursorrules, GEMINI.md, and the rest for whatever harnesses you already use, and re-running is safe — the stanza sits between markers, so your own writing is never touched.";
+
+export interface PlaybookRule {
+  id: string;
+  /** What the rule checks, in plain language. */
+  checks: string;
+  severity: "error" | "warning";
+}
+
+/** The linter's rule index — the invariants above, plus the checks on the setup itself. */
+export const rules: PlaybookRule[] = [
+  { id: "PM001", checks: "plan-next sits next to a milestone", severity: "error" },
+  { id: "PM002", checks: "idea sits next to plan-next", severity: "error" },
+  {
+    id: "PM003",
+    checks: "An experiment carries idea, plan-next, or a milestone",
+    severity: "error",
+  },
+  { id: "PM004", checks: "A release-gate has no milestone to block", severity: "error" },
+  {
+    id: "PM005",
+    checks: "A release-gate carries idea, plan-next, or experiment",
+    severity: "error",
+  },
+  {
+    id: "PM006",
+    checks: "Non-core surface work is sitting on a core version milestone",
+    severity: "error",
+  },
+  {
+    id: "PM007",
+    checks: "An epic isn't broken down into real sub-issues",
+    severity: "warning",
+  },
+  {
+    id: "PM008",
+    checks: "A pull request would land next-cycle work on the integration branch",
+    severity: "error",
+  },
+  {
+    id: "PM009",
+    checks: "A pull request mentions next-cycle work it doesn't close",
+    severity: "warning",
+  },
+  {
+    id: "PM100",
+    checks: "The copy of the rules in your repo has drifted from the package",
+    severity: "warning",
+  },
+  { id: "PM101", checks: "An agent instruction file is missing its pointer", severity: "warning" },
+  { id: "PM102", checks: "A markdown backlog file has reappeared", severity: "warning" },
+  {
+    id: "PM103",
+    checks: "Label changes from a newer version haven't been applied yet",
+    severity: "warning",
+  },
+];
+
+export const rulesInterface =
+  "Every violation comes with the command that fixes it, and there's a JSON mode that emits the whole report — that's the part meant for agents rather than people. A harness can hand the violations straight back to the model, which is the difference between the rules being documentation and the rules being a constraint.";
+
+export interface CliCommand {
+  command: string;
+  does: string;
+}
+
+export const cliCommands: CliCommand[] = [
+  {
+    command: "init",
+    does: "Copy the rules into your repo, add the issue templates, and wire your agent instruction files. Touches nothing outside your working directory.",
+  },
+  {
+    command: "bootstrap",
+    does: "Create the labels with their descriptions, a starter milestone, and the filtered board views. Safe to re-run.",
+  },
+  {
+    command: "check",
+    does: "Lint the backlog against every rule. Local-only, JSON, and fail-on-warnings modes.",
+  },
+  {
+    command: "release-check",
+    does: "Answers “can we tag this version?” — exits non-zero if the milestone is gated or unfinished.",
+  },
+  {
+    command: "scope-check",
+    does: "Refuses a pull request that would land next-cycle work on the integration branch.",
+  },
+  {
+    command: "migrate",
+    does: "Applies label renames and removals after a breaking version. Previews by default.",
+  },
+  { command: "rules", does: "Prints the rule index." },
+];
+
+export const initIsLocal =
+  "Setup deliberately doesn't touch GitHub unless you ask it to. Creating labels changes state your whole team sees, and that should be a decision somebody made, not a side effect of installing a dependency.";
+
+export const pluginInstall = `/plugin marketplace add hoodiecollin/ai-pm-playbook
+/plugin install pm-playbook@pm-playbook`;
+
+export const pluginWhy =
+  "The vendored copy already works in any harness that reads repo files — Claude Code, Cursor, Codex, Copilot, Gemini, Windsurf. The Claude Code plugin is optional, and what it adds is enforcement earlier in the loop.";
+
+export const pluginParts: { name: string; does: string }[] = [
+  {
+    name: "The skill",
+    does: "The always-true core, loaded when it's relevant. It defers to the copy in your repo when there is one, since that copy is pinned to the version the project actually adopted.",
+  },
+  {
+    name: "/pm-playbook:check",
+    does: "Runs the linter and fixes what it finds, rather than reporting it back to you.",
+  },
+  {
+    name: "/pm-playbook:promote",
+    does: "Moves an issue up the ladder as one edit, so a promotion can't half-apply.",
+  },
+  {
+    name: "/pm-playbook:rfc",
+    does: "Files a design note grounded in the code, after checking it isn't a duplicate.",
+  },
+  {
+    name: "/pm-playbook:release",
+    does: "Answers “can we tag?”, keeping “blocked” and “unfinished” separate.",
+  },
+  {
+    name: "The hook",
+    does: "Blocks a gh issue command that would break a label rule — before the issue exists.",
+  },
+];
+
+export const hookTradeoff =
+  "The hook reads the command text and nothing else. That's on purpose: it catches what's self-evident in the command instantly and offline, and leaves anything that depends on repo state to the linter. A fast partial check beats a complete one that makes every command wait on the network. It also fails open on anything it can't parse — a hook that breaks your session is worse than no hook — and it never blocks the fix, because it only reads the flags that add things.";
+
+export const versioningWhy =
+  "The rules are versioned like code, because a change to them can turn issues you already have into violations.";
+
+export const versioningPolicy: { bump: string; means: string }[] = [
+  {
+    bump: "Major",
+    means: "A rule changed, or a label was renamed or removed. Your backlog might start failing the check, and a migration note ships with the release.",
+  },
+  { bump: "Minor", means: "A new label, rule, or section." },
+  { bump: "Patch", means: "Wording." },
+];
+
+export const migrateWhy =
+  "Your labels live in your GitHub, not in the package — so a release that renames one can't fix itself. The setup command writes labels by name and would just add the new one next to the old, leaving every existing issue on the stale taxonomy. That's what the migration command is for, and it previews before it acts, because the three cases aren't equally reversible: if only the old label exists it renames in place and GitHub keeps every assignment; if both exist it has to relabel each issue and then delete the old one; and if only the new one exists it skips, so re-running is safe.";
 
 // ────────────────────────────────────────────────────────────────────────────
 // §12 — adoption

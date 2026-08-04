@@ -1,7 +1,17 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Ban, Check, FileCode2, Package, Quote, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Ban,
+  Check,
+  FileCode2,
+  Package,
+  Quote,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 import { cn, container } from "@/lib/utils";
 import { GitHubIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -13,6 +23,7 @@ import {
   PLAYBOOK_REPO,
   PLAYBOOK_TEMPLATES,
   adoptionSteps,
+  agentStanza,
   antiPatterns,
   axes,
   bannedFields,
@@ -23,12 +34,14 @@ import {
   branchTargetWhy,
   branchTargets,
   ciSnippet,
+  cliCommands,
   cycleDerivation,
   cycleScopeRule,
   cycleScopeShape,
   derivedStateRule,
   disciplines,
   docsDiscipline,
+  enforcementWhy,
   epicBodyShape,
   experimentRules,
   experimentTest,
@@ -36,6 +49,8 @@ import {
   gates,
   gatesRationale,
   groundTruthRule,
+  hookTradeoff,
+  initIsLocal,
   invariantPayoff,
   invariants,
   issueTemplates,
@@ -44,13 +59,18 @@ import {
   ladder,
   ladderPayoff,
   longLivedBranches,
+  migrateWhy,
   milestoneBoilerplate,
   milestoneRules,
   nextCycleWork,
   oneBranchPayoff,
   oneBranchReasons,
   oneBranchRule,
+  payloadRoutes,
   playbookSections,
+  pluginInstall,
+  pluginParts,
+  pluginWhy,
   publishGap,
   publishGapApplies,
   publishGapWhyInvisible,
@@ -58,6 +78,8 @@ import {
   releaseGateRationale,
   releaseMechanics,
   roadmapBuckets,
+  rules,
+  rulesInterface,
   structuralRules,
   surfaceExclusionRule,
   surfaceNaming,
@@ -66,13 +88,17 @@ import {
   tldrWhy,
   trunkStrategies,
   trunkStrategyChoice,
+  versioningPolicy,
+  versioningWhy,
+  vendoringDrift,
+  vendoringWhy,
   whereDesignLives,
 } from "@/lib/pm-playbook";
 
 export const metadata: Metadata = {
   title: "AI Project-Management Playbook",
   description:
-    "A project-management system for GitHub repos, built for working with coding agents: every piece of work is an issue, two things organize them — the release it ships in and its labels — and nothing gets built before a design note and a plan exist.",
+    "A project-management system for GitHub repos, built for working with coding agents: every piece of work is an issue, two things organize them — the release it ships in and its labels — and a linter fails your build when the backlog breaks one of the rules.",
 };
 
 export default function PlaybookPage() {
@@ -96,7 +122,8 @@ export default function PlaybookPage() {
           Every piece of work is an issue, and{" "}
           <span className="text-foreground">two things organize them</span> — the release it
           ships in, and its labels. Nothing else. I worked it out running ForgeDB, then
-          generalized it so any repo can pick it up.
+          generalized it so any repo can pick it up — and packaged it so your agents read the
+          rules and a linter enforces them.
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -108,6 +135,11 @@ export default function PlaybookPage() {
           <Button asChild size="lg" variant="outline">
             <a href={PLAYBOOK_DOC} target="_blank" rel="noreferrer noopener">
               <FileCode2 /> Read the full spec
+            </a>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <a href={PLAYBOOK_NPM} target="_blank" rel="noreferrer noopener">
+              <Package /> {PLAYBOOK_PACKAGE}
             </a>
           </Button>
         </div>
@@ -138,6 +170,7 @@ export default function PlaybookPage() {
               <GatesSection />
               <PracticeSection />
               <MistakesSection />
+              <EnforcementSection />
               <AdoptSection />
             </div>
           </div>
@@ -745,6 +778,127 @@ function MistakesSection() {
           </div>
         ))}
       </div>
+    </Disclosure>
+  );
+}
+
+function EnforcementSection() {
+  return (
+    <Disclosure
+      id="enforcement"
+      title="Written down, then enforced"
+      teaser="The rules ship as a package: your agents read them out of your repo, and a linter fails the build when the backlog breaks one."
+    >
+      <p>{enforcementWhy}</p>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">
+        Why it isn&apos;t a normal dependency
+      </h3>
+      <p>Two payloads, going to two different places by two different routes.</p>
+
+      <div className="mt-5 space-y-3">
+        {payloadRoutes.map((r) => (
+          <div key={r.payload} className="rounded-xl border border-border/60 bg-card/40 p-4">
+            <p className="flex flex-wrap items-baseline gap-x-2 text-sm font-medium">
+              {r.payload}
+              <span className="text-muted-foreground">→</span>
+              <span className="text-primary">{r.consumer}</span>
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{r.ships}</p>
+          </div>
+        ))}
+      </div>
+
+      <p>{vendoringWhy}</p>
+      <p>{vendoringDrift}</p>
+      <p>{agentStanza}</p>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">The rules it checks</h3>
+      <p>
+        Everything above the line is one of the label rules from earlier, executed instead of
+        described. The rest checks that the setup itself hasn&apos;t rotted.
+      </p>
+
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full min-w-md border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="py-2 pr-4 text-left font-medium">Rule</th>
+              <th className="py-2 pr-4 text-left font-medium">Fires when</th>
+              <th className="py-2 text-left font-medium">Severity</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/60">
+            {rules.map((r) => (
+              <tr key={r.id}>
+                <td className="py-2.5 pr-4 align-top font-mono text-xs whitespace-nowrap">
+                  {r.id}
+                </td>
+                <td className="py-2.5 pr-4 align-top text-muted-foreground">{r.checks}</td>
+                <td className="py-2.5 align-top">
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1 text-xs whitespace-nowrap",
+                      r.severity === "error" ? "text-destructive" : "text-muted-foreground",
+                    )}
+                  >
+                    {r.severity === "error" ? (
+                      <X aria-hidden className="size-3" />
+                    ) : (
+                      <TriangleAlert aria-hidden className="size-3" />
+                    )}
+                    {r.severity}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <Callout tone="primary" title="The part that's aimed at agents, not people">
+        <p>{rulesInterface}</p>
+      </Callout>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">The commands</h3>
+      <div className="mt-4 space-y-3">
+        {cliCommands.map((c) => (
+          <div key={c.command} className="flex flex-col gap-1.5 sm:flex-row sm:gap-4">
+            <code className="shrink-0 font-mono text-sm text-primary sm:w-36">{c.command}</code>
+            <p className="text-sm leading-relaxed text-muted-foreground">{c.does}</p>
+          </div>
+        ))}
+      </div>
+      <p className="text-sm text-muted-foreground">{initIsLocal}</p>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">The Claude Code plugin</h3>
+      <p>{pluginWhy}</p>
+      <CodeBlock>{pluginInstall}</CodeBlock>
+
+      <div className="mt-5 space-y-3">
+        {pluginParts.map((p) => (
+          <div key={p.name} className="flex flex-col gap-1.5 sm:flex-row sm:gap-4">
+            <code className="shrink-0 font-mono text-sm text-primary sm:w-52">{p.name}</code>
+            <p className="text-sm leading-relaxed text-muted-foreground">{p.does}</p>
+          </div>
+        ))}
+      </div>
+      <p>{hookTradeoff}</p>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">
+        Versioning, and what happens when a label changes
+      </h3>
+      <p>{versioningWhy}</p>
+
+      <div className="mt-4 space-y-3">
+        {versioningPolicy.map((v) => (
+          <div key={v.bump} className="flex flex-col gap-1.5 sm:flex-row sm:gap-4">
+            <span className="shrink-0 font-mono text-sm text-primary sm:w-36">{v.bump}</span>
+            <p className="text-sm leading-relaxed text-muted-foreground">{v.means}</p>
+          </div>
+        ))}
+      </div>
+      <p>{migrateWhy}</p>
     </Disclosure>
   );
 }
