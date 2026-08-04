@@ -87,19 +87,25 @@ Two lightweight, privacy-conscious layers, both **inert in local dev**:
   today — that's expected, not dead code left by accident.
 - **AI Project-Management Playbook** (`/ai-pm-playbook`) is a hand-built page over
   typed data in `lib/pm-playbook.ts` — the label taxonomy, commitment ladder,
-  invariants, gates, and anti-patterns as structured data so they render as real
-  components. **The [`hoodiecollin/ai-pm-playbook`](https://github.com/hoodiecollin/ai-pm-playbook)
+  invariants, gates, linter rules, and anti-patterns as structured data so they
+  render as real components. **The [`hoodiecollin/ai-pm-playbook`](https://github.com/hoodiecollin/ai-pm-playbook)
   repo (`PLAYBOOK.md`) is the source of truth for the *rules***; this file mirrors
-  them, so update it when the playbook changes. The wording here is deliberately
-  plainer than the spec — the page has to land with someone who's never seen the
-  model — with two exceptions that are copied verbatim and must stay that way:
-  `labels[].description` (the real GitHub label text written by the playbook's
-  bootstrap script) and `milestoneBoilerplate` (meant to be pasted into milestone
-  bodies). The page is two-tier: a TL;DR and the core model render open, and the
-  nine detail sections are collapsed `<details>` (`components/disclosure.tsx`),
-  which open themselves when a TOC link or shared URL targets their fragment.
-  `playbookSections` drives both the sticky TOC and the search-index headings —
-  keep it in sync with the sections the page actually renders.
+  them, so update it when the playbook changes. The playbook now also ships as
+  the [`@hoodiecollin/pm-playbook`](https://www.npmjs.com/package/@hoodiecollin/pm-playbook)
+  npm package (a CLI + linter) and a Claude Code plugin, so the page describes
+  commands people will actually run. The wording here is deliberately plainer
+  than the spec — the page has to land with someone who's never seen the model —
+  with a few exceptions that are copied verbatim and must stay that way:
+  `labels[].description` (the real GitHub label text the `bootstrap` command
+  writes), `milestoneBoilerplate` (meant to be pasted into milestone bodies), and
+  the identifiers/commands (`rules[].id`, `cliCommands[].command`, `quickStart`,
+  `ciSnippet`, `pluginInstall`) — paraphrase those and the page tells people to
+  run things that don't exist. The page is two-tier: a TL;DR and the core model
+  render open, and the ten detail sections are collapsed `<details>`
+  (`components/disclosure.tsx`), which open themselves when a TOC link or shared
+  URL targets their fragment. `playbookSections` drives both the sticky TOC and
+  the search-index headings — keep it in sync with the sections the page actually
+  renders.
 - **Resume** — the canonical résumé is typed data in `lib/resume.ts`, the single
   source of truth for the `/resume` page and every PDF, so they can't drift. It's
   modelled as **one shared base** (experience, projects, education, contact) plus
