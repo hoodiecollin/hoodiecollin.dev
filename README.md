@@ -89,10 +89,17 @@ Two lightweight, privacy-conscious layers, both **inert in local dev**:
   typed data in `lib/pm-playbook.ts` — the label taxonomy, commitment ladder,
   invariants, gates, and anti-patterns as structured data so they render as real
   components. **The [`hoodiecollin/ai-pm-playbook`](https://github.com/hoodiecollin/ai-pm-playbook)
-  repo (`PLAYBOOK.md`) is the source of truth**; this file mirrors it, so update
-  it when the playbook changes. `playbookSections` drives both the page's sticky
-  TOC and its search-index headings — keep it in sync with the `<h2>`s the page
-  actually renders.
+  repo (`PLAYBOOK.md`) is the source of truth for the *rules***; this file mirrors
+  them, so update it when the playbook changes. The wording here is deliberately
+  plainer than the spec — the page has to land with someone who's never seen the
+  model — with two exceptions that are copied verbatim and must stay that way:
+  `labels[].description` (the real GitHub label text written by the playbook's
+  bootstrap script) and `milestoneBoilerplate` (meant to be pasted into milestone
+  bodies). The page is two-tier: a TL;DR and the core model render open, and the
+  nine detail sections are collapsed `<details>` (`components/disclosure.tsx`),
+  which open themselves when a TOC link or shared URL targets their fragment.
+  `playbookSections` drives both the sticky TOC and the search-index headings —
+  keep it in sync with the sections the page actually renders.
 - **Resume** — the canonical résumé is typed data in `lib/resume.ts`, the single
   source of truth for the `/resume` page and every PDF, so they can't drift. It's
   modelled as **one shared base** (experience, projects, education, contact) plus
