@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
   images: { unoptimized: true },
   devIndicators: false,
   // Trailing slashes keep the static export's directory-per-route URLs stable
-  // across hosts (`/writing/foo/` → `writing/foo/index.html`).
+  // across hosts (`/projects/` → `projects/index.html`).
   trailingSlash: true,
   turbopack: { root: fileURLToPath(new URL(".", import.meta.url)) },
 };

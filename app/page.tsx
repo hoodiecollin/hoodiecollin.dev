@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, FileText, Globe, Mail } from "lucide-react";
-import { getAllPosts } from "@/lib/mdx";
-import { cn, container, formatDate } from "@/lib/utils";
+import { ArrowRight, FileText, Mail } from "lucide-react";
+import { cn, container } from "@/lib/utils";
 import { site } from "@/lib/site";
-import { siteProjects, type ResumeProject } from "@/lib/resume";
+import { siteProjects } from "@/lib/resume";
 import { GitHubIcon, LinkedInIcon } from "@/components/icons";
+import { FeaturedProjectCard, ProjectCard } from "@/components/project-card";
 import { Button } from "@/components/ui/button";
 
 const socials = [
@@ -14,9 +14,9 @@ const socials = [
 ];
 
 export default function HomePage() {
-  const posts = getAllPosts().slice(0, 5);
   const featured = siteProjects.filter((p) => p.featured);
-  const rest = siteProjects.filter((p) => !p.featured);
+  // A taste, not the whole list — /projects carries the rest.
+  const rest = siteProjects.filter((p) => !p.featured).slice(0, 3);
 
   return (
     <main className={cn(container, "py-16 sm:py-24")}>
@@ -27,8 +27,8 @@ export default function HomePage() {
           Collin Kokotas
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          Engineer. I build systems and tools — and write about the parts worth
-          remembering. This is where the <span className="text-primary">deep dives</span> live.
+          Engineer. I build systems and tools — compilers, databases, and the libraries
+          underneath them. This is where the <span className="text-primary">deep work</span> lives.
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -95,13 +95,23 @@ export default function HomePage() {
 
       {/* Projects */}
       <section className="mt-16">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          Projects
-        </h2>
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+            Projects
+          </h2>
+          <Link
+            href="/projects/"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            All projects <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
 
-        {featured.map((project) => (
-          <FeaturedProjectCard key={project.name} project={project} />
-        ))}
+        <div className="mt-6 space-y-4">
+          {featured.map((project) => (
+            <FeaturedProjectCard key={project.name} project={project} />
+          ))}
+        </div>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rest.map((project) => (
@@ -109,152 +119,7 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-
-      {/* Writing */}
-      <section className="mt-16">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-            Writing
-          </h2>
-          <Link
-            href="/writing/"
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            All posts <ArrowRight className="size-3.5" />
-          </Link>
-        </div>
-
-        {posts.length === 0 ? (
-          <p className="mt-6 text-sm text-muted-foreground">No posts yet — check back soon.</p>
-        ) : (
-          <ul className="mt-6 divide-y divide-border/60">
-            {posts.map((post) => (
-              <li key={post.slug}>
-                <Link
-                  href={post.href}
-                  className="group flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
-                >
-                  <span className="font-medium transition-colors group-hover:text-primary">
-                    {post.frontmatter.title}
-                  </span>
-                  <time
-                    dateTime={post.frontmatter.date}
-                    className="shrink-0 font-mono text-xs text-muted-foreground"
-                  >
-                    {formatDate(post.frontmatter.date)}
-                  </time>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </main>
   );
 }
 
-/** Bare host for a link label, e.g. "https://forgedb.dev/" → "forgedb.dev". */
-function shortHost(url: string): string {
-  return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
-}
-
-/** Prominent, full-width card for a highlighted project (logo, website + repo). */
-function FeaturedProjectCard({ project }: { project: ResumeProject }) {
-  return (
-    <div className="mt-6 overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.08] via-card/40 to-transparent p-6 sm:p-8">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
-        {project.logo ? (
-          // eslint-disable-next-line @next/next/no-img-element -- static SVG, unoptimized export
-          <img src={project.logo} alt="" aria-hidden className="size-14 shrink-0 sm:size-16" />
-        ) : null}
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">{project.name}</h3>
-            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-primary">
-              Featured
-            </span>
-            <span className="ml-auto shrink-0 font-mono text-xs text-muted-foreground">
-              {project.year}
-            </span>
-          </div>
-          <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
-            {project.description}
-          </p>
-          <div className="mt-5 flex flex-wrap items-center gap-2">
-            {project.website ? (
-              <Button asChild size="sm">
-                <a href={project.website} target="_blank" rel="noreferrer noopener">
-                  <Globe /> {shortHost(project.website)}
-                </a>
-              </Button>
-            ) : null}
-            {project.href ? (
-              <Button asChild size="sm" variant="outline">
-                <a href={project.href} target="_blank" rel="noreferrer noopener">
-                  <GitHubIcon /> GitHub
-                </a>
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Standard project card for the grid; shows a brand mark when the project has one. */
-function ProjectCard({ project }: { project: ResumeProject }) {
-  const inner = (
-    <>
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2.5">
-          {project.logo ? (
-            // eslint-disable-next-line @next/next/no-img-element -- static SVG, unoptimized export
-            <img src={project.logo} alt="" aria-hidden className="size-7 shrink-0" />
-          ) : null}
-          {/* Wraps rather than truncates — a clipped project name reads as a typo,
-              and `mt-auto` on the CTA keeps the cards' bottom edges aligned anyway. */}
-          <h3 className="font-medium leading-snug transition-colors group-hover:text-primary">
-            {project.name}
-          </h3>
-        </div>
-        <span className="shrink-0 font-mono text-xs text-muted-foreground">{project.year}</span>
-      </div>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
-      {project.page || project.href ? (
-        // `mt-auto` pins the CTA to the card's bottom edge, so cards stretched by a
-        // taller neighbor in the same grid row don't leave a gap under their link.
-        <span className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
-          {project.page ? (
-            <>
-              Read more <ArrowRight className="size-3.5" />
-            </>
-          ) : (
-            <>
-              View on GitHub <ArrowUpRight className="size-3.5" />
-            </>
-          )}
-        </span>
-      ) : null}
-    </>
-  );
-  const className =
-    "group flex flex-col rounded-xl border border-border/60 bg-card/40 p-5 transition-colors hover:border-border hover:bg-card";
-
-  // A project with its own page on this site links there (internal nav); otherwise
-  // the card is a straight shortcut out to the repo.
-  if (project.page) {
-    return (
-      <Link href={project.page} className={className}>
-        {inner}
-      </Link>
-    );
-  }
-  return project.href ? (
-    <a href={project.href} target="_blank" rel="noreferrer noopener" className={className}>
-      {inner}
-    </a>
-  ) : (
-    <div className={className}>{inner}</div>
-  );
-}
