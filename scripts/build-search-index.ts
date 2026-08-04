@@ -1,40 +1,27 @@
 /**
- * Build the static ⌘K search index (public/search-index.json) from the writing
- * content tree plus the hand-built pages worth finding. Runs as the `prebuild`
- * step so `next build` always ships a fresh index. Drafts are excluded in
- * production (getAllPosts filters them).
+ * Build the static ⌘K search index (public/search-index.json) from the project
+ * list plus the hand-built pages worth finding. Runs as the `prebuild` step so
+ * `next build` always ships a fresh index.
  *
- * Posts index themselves from their MDX. Hand-built TSX pages have no MDX to
- * parse, so each one contributes an explicit entry below — its headings come
- * from the same data the page renders its sections from, so the two can't drift.
+ * Every entry is derived from the same typed data the pages render from, so the
+ * index and the pages can't drift: projects come from `siteProjects`, and each
+ * hand-built TSX page contributes an explicit entry built from its own module.
  */
 import fs from "node:fs";
 import path from "node:path";
-import { getAllPosts } from "../lib/mdx.ts";
-import { extractToc } from "../lib/toc.ts";
 import type { SearchDoc } from "../lib/search.ts";
+import { siteProjects, projectSlug } from "../lib/resume.ts";
 import { playbookSections, groundTruthRule } from "../lib/pm-playbook.ts";
 
-function toPlainText(mdx: string): string {
-  return mdx
-    .replace(/^---[\s\S]*?---/, " ") // frontmatter
-    .replace(/```[\s\S]*?```/g, " ") // code fences
-    .replace(/`[^`]+`/g, " ") // inline code
-    .replace(/<[^>]+>/g, " ") // jsx/html tags
-    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1") // links/images
-    .replace(/[#>*_~|-]/g, " ") // markdown punctuation
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-const posts = getAllPosts();
-const postDocs: SearchDoc[] = posts.map((p) => ({
-  title: p.frontmatter.title,
-  href: p.href,
-  description: p.frontmatter.description ?? "",
-  headings: extractToc(p.content).map((h) => h.text),
-  excerpt: toPlainText(p.content).slice(0, 240),
-  group: "Writing",
+// A project with its own page on this site points there; the rest deep-link to
+// their card on /projects via the anchor id the card renders.
+const projectDocs: SearchDoc[] = siteProjects.map((p) => ({
+  title: p.name,
+  href: p.page ?? `/projects/#${projectSlug(p.name)}`,
+  description: p.description,
+  headings: p.tags ?? [],
+  excerpt: (p.detail ?? p.description).slice(0, 240),
+  group: "Projects",
 }));
 
 const pageDocs: SearchDoc[] = [
@@ -49,11 +36,11 @@ const pageDocs: SearchDoc[] = [
   },
 ];
 
-const index: SearchDoc[] = [...postDocs, ...pageDocs];
+const index: SearchDoc[] = [...projectDocs, ...pageDocs];
 
 const outDir = path.join(process.cwd(), "public");
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, "search-index.json"), JSON.stringify(index));
 console.log(
-  `\n✓ search-index.json — ${postDocs.length} posts + ${pageDocs.length} pages indexed`,
+  `\n✓ search-index.json — ${projectDocs.length} projects + ${pageDocs.length} pages indexed`,
 );

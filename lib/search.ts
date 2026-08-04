@@ -1,7 +1,7 @@
 /** Which command-palette group an entry lands in. */
-export type SearchGroup = "Writing" | "Pages";
+export type SearchGroup = "Projects" | "Pages";
 
-/** One entry in the prebuilt static search index (a post, or a static page). */
+/** One entry in the prebuilt static search index (a project, or a static page). */
 export interface SearchDoc {
   title: string;
   href: string;
@@ -14,5 +14,5 @@ export interface SearchDoc {
   group: SearchGroup;
 }
 
-/** Palette group order — posts first, then hand-built pages. */
-export const searchGroups: SearchGroup[] = ["Writing", "Pages"];
+/** Palette group order — projects first, then the hand-built pages. */
+export const searchGroups: SearchGroup[] = ["Projects", "Pages"];
