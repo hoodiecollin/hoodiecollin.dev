@@ -29,7 +29,7 @@ const pageDocs: SearchDoc[] = [
     title: "AI Project-Management Playbook",
     href: "/ai-pm-playbook/",
     description:
-      "A project-management system for GitHub repos: every piece of work is an issue, and only its milestone and labels organize it.",
+      "A project-management system for GitHub repos: every piece of work is an issue, only its milestone and labels organize it, and a linter enforces the rules.",
     headings: playbookSections.map((s) => s.title),
     excerpt: groundTruthRule.slice(0, 240),
     group: "Pages",
