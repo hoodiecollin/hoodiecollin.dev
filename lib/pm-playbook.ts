@@ -1018,7 +1018,7 @@ export const ciSnippet = `# on pull requests — lint the backlog
 # on pull requests into the integration branch — keep next-cycle work out
 - run: npx @hoodiecollin/pm-playbook scope-check \${{ github.event.pull_request.number }}`;
 
-/** The four reusable issue templates the repo ships. */
+/** The five reusable issue templates the repo ships. */
 export const issueTemplates: { name: string; purpose: string }[] = [
   { name: "idea", purpose: "The speculative rung. Filing one commits you to nothing." },
   { name: "rfc", purpose: "The design note, written as an issue instead of a file." },
@@ -1026,5 +1026,10 @@ export const issueTemplates: { name: string; purpose: string }[] = [
   {
     name: "epic",
     purpose: "Sub-issues plus the decisions-locked and current-state skeleton.",
+  },
+  {
+    name: "release-gate",
+    purpose:
+      "What blocks the tag, plus the versioned-asset ledger. Open one per release milestone, at the start of the cycle.",
   },
 ];
