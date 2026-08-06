@@ -46,6 +46,15 @@ import {
   experimentRules,
   experimentTest,
   gapOffTrunkRules,
+  gateIssueShape,
+  gateRedoPlaceholder,
+  gateRedoRepopulate,
+  gateRedoRule,
+  gateRedoStash,
+  gateRedoWhy,
+  gateSyncCost,
+  gateSyncDirections,
+  gateSyncRule,
   gates,
   gatesRationale,
   groundTruthRule,
@@ -724,7 +733,7 @@ function GatesSection() {
     <Disclosure
       id="gates"
       title="Design, then plan, then tests"
-      teaser="Nothing gets coded until a design note and an implementation plan exist, in that order — and the tests get written before the code that passes them."
+      teaser="Nothing gets coded until a design note and an implementation plan exist, in that order — and the tests get written before the code that passes them. Plus what to do when a gate has to be redone."
     >
       <blockquote className="rounded-xl border border-primary/30 bg-primary/[0.06] p-5">
         <p className="leading-relaxed text-foreground/90">
@@ -774,6 +783,40 @@ function GatesSection() {
           </div>
         ))}
       </div>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">
+        Redoing a gate you already accepted
+      </h3>
+      <p>{gateRedoRule}</p>
+
+      <blockquote className="mt-5 overflow-x-auto rounded-lg border-l-2 border-destructive/50 bg-muted/30 px-4 py-3">
+        <pre className="font-mono text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground">
+          <code>{gateRedoPlaceholder}</code>
+        </pre>
+      </blockquote>
+
+      <Callout tone="danger" title="Why this is a hard rule and not a nicety">
+        <p>{gateRedoWhy}</p>
+      </Callout>
+
+      <p>{gateRedoStash}</p>
+      <p>{gateRedoRepopulate}</p>
+
+      <h3 className="mt-10 text-lg font-semibold tracking-tight">
+        Reconcile the sources on both sides of every gate
+      </h3>
+      <p>{gateSyncRule}</p>
+
+      <div className="mt-5 space-y-3">
+        {gateSyncDirections.map((d) => (
+          <div key={d.when} className="rounded-xl border border-border/60 bg-card/40 p-4">
+            <p className="text-sm font-medium text-primary">{d.when}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{d.does}</p>
+          </div>
+        ))}
+      </div>
+
+      <p>{gateSyncCost}</p>
     </Disclosure>
   );
 }

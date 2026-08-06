@@ -14,7 +14,8 @@
  *   - `labels[].description` — the real GitHub label descriptions, written by
  *     the package's `bootstrap` command (src/lib/model.ts). Rewording them here
  *     would make the page describe labels that don't match what you'd get.
- *   - `milestoneBoilerplate` — meant to be copy-pasted into milestone bodies.
+ *   - `milestoneBoilerplate` and `gateRedoPlaceholder` — meant to be copy-pasted
+ *     into an issue or milestone body as-is.
  *   - `rules[].id`, `cliCommands[].command`, `quickStart`, `ciSnippet`,
  *     `pluginInstall` — identifiers and commands that have to match the shipped
  *     CLI, or the page is telling people to run things that don't exist.
@@ -585,6 +586,44 @@ export const derivedStateRule =
 
 export const whereDesignLives =
   "The design note is the rfc issue, never a proposal file committed to the repo. The only design docs in the tree are durable architecture references for features that already shipped. When something ships, fold its lasting design into ARCHITECTURE.md and close the rfc.";
+
+// §9.1 — reopening a gate you already accepted
+
+export const gateRedoRule =
+  "Gates get reopened. New information lands, a constraint turns out to be an artifact of an assumption, building the thing reveals the design was solving the wrong problem. Redoing a gate is healthy. What isn't healthy is what the issue body says while you redo it — so the moment you decide to redo an accepted gate, you purge the body, before any new thinking happens. What's left is a placeholder and nothing else.";
+
+/** Verbatim — the placeholder that replaces a withdrawn gate body. */
+export const gateRedoPlaceholder = `> **Gate 1 is being redone (reopened YYYY-MM-DD).** The previously accepted
+> design has been withdrawn and this body intentionally holds no design content.
+> Do not plan against anything here. The live discussion is in the comments.`;
+
+export const gateRedoWhy =
+  "A superseded design in the body doesn't read as superseded — it reads as the accepted design, because that's what a body is. Everything downstream trusts it: the next planning pass, an agent picking the issue up cold, a reviewer checking whether the implementation matches. The correction is invariably in a comment, and people reading top-down never get there. The failure is silent, and it compounds: a plan written against a withdrawn design looks exactly like a plan written against the live one.";
+
+export const gateRedoStash =
+  "Stashing the old body to a scratch file while you work is fine, and often useful. Delete the stash once the new gate is accepted and the new body is written — a lingering copy of a withdrawn design is the same hazard, one directory over.";
+
+export const gateRedoRepopulate =
+  "The body stays a placeholder for the whole redo. It gets repopulated only at acceptance, from the accepted outcome — never patched incrementally as the thinking evolves, which just recreates the half-superseded state the purge exists to prevent.";
+
+// §9.2 — reconciling sources on both sides of every gate
+
+export const gateSyncRule =
+  "Gates are exactly where a stale claim does the most damage, because each gate's output is the next gate's input — so a bad input doesn't get caught downstream, it gets built on. Which means a reconciliation pass on both sides of every gate, not just around work somebody judged non-trivial, and not just around implementation.";
+
+export const gateSyncDirections: { when: string; does: string }[] = [
+  {
+    when: "Before the gate — verify",
+    does: "List every source making a claim about this work — issue bodies and comments, design and architecture docs, agent memory, code comments, the release-gate ledger — and check each against ground truth: the code, its history, the actual runtime state. Fix or delete what's drifted first, so the gate is built on something verified.",
+  },
+  {
+    when: "After the gate — propagate",
+    does: "Push the accepted outcome back outward — the issue body, the docs, memory, the issues that cross-link to it — so the next gate and the next session start aligned.",
+  },
+];
+
+export const gateSyncCost =
+  "This is deliberately expensive, and it's still worth it: a reconciliation pass costs a bounded amount, once. Planning against a stale claim costs an unbounded amount, and you find out late.";
 
 /** §10 — the two roadmap docs and where the system is written down. */
 export const docsDiscipline: { name: string; role: string }[] = [
