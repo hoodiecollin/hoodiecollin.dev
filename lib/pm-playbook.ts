@@ -411,6 +411,53 @@ export const longLivedBranches: LongLivedBranch[] = [
 export const releaseGateRationale =
   "The ladder ends closed → released. The work that lives in that gap isn't feature work: publishing the packages, reconciling a version number, running the clean-room check, rotating a credential before it expires. Filed as ordinary tech-debt it looks like something you could put off, which is precisely backwards. The release-gate label names it, so “are we ready to ship?” is a search instead of a memory and the tag workflow has something mechanical to check. File one the moment you knowingly defer a release obligation — that's exactly when it's most likely to be forgotten, because everything still works on your machine.";
 
+/** §5.2 — the ledger that turns the gate issue from a memory aid into a check. */
+export const ledgerRule =
+  "A release-gate issue that lists only the obligations somebody happened to notice is a checklist of remembered work — and the ones you miss are, by construction, the ones nobody wrote down. So the gate issue carries a table of every independently versioned thing in the project: every published package, every crate, every extension, every separately released binary. Not the ones you touched — all of them, each starting at “no change.” The table gets written when the milestone opens, before any work lands.";
+
+export interface LedgerRow {
+  asset: string;
+  released: string;
+  bump: string;
+  why: string;
+}
+
+/** Illustrative — the shape of the table, matching the release-gate issue template. */
+export const ledgerExample: LedgerRow[] = [
+  { asset: "pkg-core", released: "1.4.2", bump: "minor", why: "#123 added an additive API" },
+  { asset: "pkg-cli", released: "0.9.0", bump: "no change", why: "" },
+  { asset: "vscode-ext", released: "0.1.0", bump: "no change", why: "" },
+];
+
+export const ledgerUpkeep =
+  "As work lands, its row gets updated in the same pass that lands it. That's the whole mechanism. Deciding “does this need a bump?” with the change in front of you is reliable; reconstructing it at tag time from a diff is not.";
+
+export const ledgerDefaultRow =
+  "The “no change” row has to be written rather than implied. A missing row and a “no change” row look identical at tag time and mean opposite things — one is verified untouched, the other was never considered — and only the explicit table can tell them apart. That distinction is the entire reason the gate can answer “are we releasable?” mechanically.";
+
+export const ledgerInternalPackages =
+  "Include the things you don't think of as products. An internal package no user ever names still resolves from a registry, and its failure is the quiet one: the version exists, so nothing errors, and the release ships stale source behind a correct-looking version number. A publish dry-run doesn't catch that. The ledger is the only thing that does.";
+
+/** The other two headings the gate issue template asks for, alongside the ledger. */
+export const gateIssueShape: { heading: string; note: string }[] = [
+  {
+    heading: "What blocks the tag",
+    note: "One obligation per line. Publishing an artifact, reconciling a version line, rotating a credential — never features, which are ordinary milestone work.",
+  },
+  {
+    heading: "Versioned-asset ledger",
+    note: "Every independently versioned thing, defaulting to “no change,” updated as work lands.",
+  },
+  {
+    heading: "Verification",
+    note: "How “releasable” gets proven rather than assumed: the command or check somebody can re-run, and what passing looks like. Flag any evidence that goes stale — a badge from before a publish is not a live result.",
+  },
+  {
+    heading: "Release order",
+    note: "Publish, merge to the main branch, tag, close the milestone. The order is load-bearing, so write down anything that has to happen before something else and why.",
+  },
+];
+
 // ────────────────────────────────────────────────────────────────────────────
 // §6 — surfaces
 // ────────────────────────────────────────────────────────────────────────────

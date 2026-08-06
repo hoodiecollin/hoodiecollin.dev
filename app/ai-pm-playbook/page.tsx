@@ -55,6 +55,11 @@ import {
   invariants,
   issueTemplates,
   labels,
+  ledgerDefaultRow,
+  ledgerExample,
+  ledgerInternalPackages,
+  ledgerRule,
+  ledgerUpkeep,
   labelsAreTheProcess,
   ladder,
   ladderPayoff,
@@ -380,7 +385,7 @@ function ReleasesSection() {
     <Disclosure
       id="releases"
       title="Shipping, and what blocks it"
-      teaser="What a milestone is, why closed isn't shipped, the failure mode where every test passes but nobody can install what you built, and how many long-lived branches you actually need."
+      teaser="What a milestone is, why closed isn't shipped, the failure mode where every test passes but nobody can install what you built, the ledger that proves a version is releasable, and how many long-lived branches you actually need."
     >
       <ul className="space-y-2">
         {milestoneRules.map((r) => (
@@ -487,6 +492,68 @@ function ReleasesSection() {
         <LabelChip name="release-gate" color="b60205" /> — the rung between closed and released
       </h4>
       <p>{releaseGateRationale}</p>
+
+      <h4 className="mt-8 font-semibold tracking-tight">
+        And it carries a ledger of every versioned thing you ship
+      </h4>
+      <p>{ledgerRule}</p>
+
+      <div className="mt-5 overflow-x-auto rounded-xl border border-border/60">
+        <table className="w-full min-w-lg border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/30">
+              <th className="px-4 py-2 text-left font-medium">Asset</th>
+              <th className="px-4 py-2 text-left font-medium">Released</th>
+              <th className="px-4 py-2 text-left font-medium">Bump needed</th>
+              <th className="px-4 py-2 text-left font-medium">Why</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/60">
+            {ledgerExample.map((row) => {
+              const bumped = row.bump !== "no change";
+              return (
+                <tr key={row.asset}>
+                  <td className="px-4 py-2.5 align-top font-mono text-xs whitespace-nowrap">
+                    {row.asset}
+                  </td>
+                  <td className="px-4 py-2.5 align-top font-mono text-xs text-muted-foreground">
+                    {row.released}
+                  </td>
+                  <td
+                    className={cn(
+                      "px-4 py-2.5 align-top text-xs whitespace-nowrap",
+                      bumped ? "font-medium text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    {row.bump}
+                  </td>
+                  <td className="px-4 py-2.5 align-top text-muted-foreground">{row.why}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <p>{ledgerUpkeep}</p>
+
+      <Callout tone="primary" title="Why the “no change” row has to be written down">
+        <p>{ledgerDefaultRow}</p>
+        <p>{ledgerInternalPackages}</p>
+      </Callout>
+
+      <p>Which makes the whole gate issue four headings:</p>
+      <div className="mt-4 divide-y divide-border/60 rounded-xl border border-border/60">
+        {gateIssueShape.map((part, i) => (
+          <div key={part.heading} className="flex gap-4 p-4">
+            <span className="shrink-0 font-mono text-xs text-muted-foreground">{i + 1}</span>
+            <div className="min-w-0">
+              <p className="text-sm font-medium">{part.heading}</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{part.note}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <h3 className="mt-10 text-lg font-semibold tracking-tight">
         One integration branch, never one per version
