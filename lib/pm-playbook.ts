@@ -672,6 +672,16 @@ export const disciplines: Discipline[] = [
       "When a new issue gives a home to claims scattered across docs, add the pointers both ways without waiting for permission.",
   },
   {
+    title: "Reconcile the sources on both sides of every gate",
+    detail:
+      "Task boundaries are the floor. The gates are the ones you can never skip, because a gate's input is the previous gate's output — a stale claim there gets built on rather than caught.",
+  },
+  {
+    title: "Keep the release-gate ledger current as you go",
+    detail:
+      "When a change touches an independently versioned asset, set that asset's row in the same pass. Not at tag time, from a diff.",
+  },
+  {
     title: "Prioritize on engineering merit, never on demand",
     detail:
       "Before launch there is no usage data, so any argument from “demand” is smuggling in numbers you don't have. Argue from scope, risk, what unblocks what, and whether it fits what the product is.",
@@ -778,6 +788,16 @@ export const antiPatterns: AntiPattern[] = [
     pattern: "A release obligation filed as ordinary tech-debt",
     consequence:
       "It reads as deferrable when it's the opposite. Label it release-gate so “can we ship?” is a search rather than a memory.",
+  },
+  {
+    pattern: "A release-gate issue that lists only what somebody remembered",
+    consequence:
+      "The obligations you miss are the ones nobody wrote down. Give it a row for every versioned asset, defaulting to “no change” — a missing row and a “no change” row mean opposite things.",
+  },
+  {
+    pattern: "A withdrawn design left sitting in a reopened gate's body",
+    consequence:
+      "A body reads as the accepted design no matter what a comment further down says. Purge it to a placeholder before you start rethinking, and rewrite it only at acceptance.",
   },
   {
     pattern: "A roadmap that promises more than the code does",
